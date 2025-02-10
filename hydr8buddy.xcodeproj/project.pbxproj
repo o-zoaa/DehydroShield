@@ -1,0 +1,671 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		96BDAD6B2D59C5DE006E78DF /* hydr8buddy Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 96BDAD6A2D59C5DE006E78DF /* hydr8buddy Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		96BDAD6C2D59C5DE006E78DF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 96BDAD5E2D59C5DE006E78DF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 96BDAD692D59C5DE006E78DF;
+			remoteInfo = "hydr8buddy Watch App";
+		};
+		96BDAD7D2D59C5DF006E78DF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 96BDAD5E2D59C5DE006E78DF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 96BDAD692D59C5DE006E78DF;
+			remoteInfo = "hydr8buddy Watch App";
+		};
+		96BDAD872D59C5DF006E78DF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 96BDAD5E2D59C5DE006E78DF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 96BDAD692D59C5DE006E78DF;
+			remoteInfo = "hydr8buddy Watch App";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		96BDAD932D59C5DF006E78DF /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				96BDAD6B2D59C5DE006E78DF /* hydr8buddy Watch App.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		96BDAD642D59C5DE006E78DF /* hydr8buddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = hydr8buddy.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		96BDAD6A2D59C5DE006E78DF /* hydr8buddy Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "hydr8buddy Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		96BDAD7C2D59C5DF006E78DF /* hydr8buddy Watch AppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "hydr8buddy Watch AppTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		96BDAD862D59C5DF006E78DF /* hydr8buddy Watch AppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "hydr8buddy Watch AppUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		96BDAD6E2D59C5DE006E78DF /* hydr8buddy Watch App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "hydr8buddy Watch App";
+			sourceTree = "<group>";
+		};
+		96BDAD7F2D59C5DF006E78DF /* hydr8buddy Watch AppTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "hydr8buddy Watch AppTests";
+			sourceTree = "<group>";
+		};
+		96BDAD892D59C5DF006E78DF /* hydr8buddy Watch AppUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "hydr8buddy Watch AppUITests";
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		96BDAD672D59C5DE006E78DF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		96BDAD792D59C5DF006E78DF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		96BDAD832D59C5DF006E78DF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		96BDAD5D2D59C5DE006E78DF = {
+			isa = PBXGroup;
+			children = (
+				96BDAD6E2D59C5DE006E78DF /* hydr8buddy Watch App */,
+				96BDAD7F2D59C5DF006E78DF /* hydr8buddy Watch AppTests */,
+				96BDAD892D59C5DF006E78DF /* hydr8buddy Watch AppUITests */,
+				96BDAD652D59C5DE006E78DF /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		96BDAD652D59C5DE006E78DF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				96BDAD642D59C5DE006E78DF /* hydr8buddy.app */,
+				96BDAD6A2D59C5DE006E78DF /* hydr8buddy Watch App.app */,
+				96BDAD7C2D59C5DF006E78DF /* hydr8buddy Watch AppTests.xctest */,
+				96BDAD862D59C5DF006E78DF /* hydr8buddy Watch AppUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		96BDAD632D59C5DE006E78DF /* hydr8buddy */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 96BDAD942D59C5DF006E78DF /* Build configuration list for PBXNativeTarget "hydr8buddy" */;
+			buildPhases = (
+				96BDAD622D59C5DE006E78DF /* Resources */,
+				96BDAD932D59C5DF006E78DF /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				96BDAD6D2D59C5DE006E78DF /* PBXTargetDependency */,
+			);
+			name = hydr8buddy;
+			packageProductDependencies = (
+			);
+			productName = hydr8buddy;
+			productReference = 96BDAD642D59C5DE006E78DF /* hydr8buddy.app */;
+			productType = "com.apple.product-type.application.watchapp2-container";
+		};
+		96BDAD692D59C5DE006E78DF /* hydr8buddy Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 96BDAD902D59C5DF006E78DF /* Build configuration list for PBXNativeTarget "hydr8buddy Watch App" */;
+			buildPhases = (
+				96BDAD662D59C5DE006E78DF /* Sources */,
+				96BDAD672D59C5DE006E78DF /* Frameworks */,
+				96BDAD682D59C5DE006E78DF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				96BDAD6E2D59C5DE006E78DF /* hydr8buddy Watch App */,
+			);
+			name = "hydr8buddy Watch App";
+			packageProductDependencies = (
+			);
+			productName = "hydr8buddy Watch App";
+			productReference = 96BDAD6A2D59C5DE006E78DF /* hydr8buddy Watch App.app */;
+			productType = "com.apple.product-type.application";
+		};
+		96BDAD7B2D59C5DF006E78DF /* hydr8buddy Watch AppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 96BDAD972D59C5DF006E78DF /* Build configuration list for PBXNativeTarget "hydr8buddy Watch AppTests" */;
+			buildPhases = (
+				96BDAD782D59C5DF006E78DF /* Sources */,
+				96BDAD792D59C5DF006E78DF /* Frameworks */,
+				96BDAD7A2D59C5DF006E78DF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				96BDAD7E2D59C5DF006E78DF /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				96BDAD7F2D59C5DF006E78DF /* hydr8buddy Watch AppTests */,
+			);
+			name = "hydr8buddy Watch AppTests";
+			packageProductDependencies = (
+			);
+			productName = "hydr8buddy Watch AppTests";
+			productReference = 96BDAD7C2D59C5DF006E78DF /* hydr8buddy Watch AppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		96BDAD852D59C5DF006E78DF /* hydr8buddy Watch AppUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 96BDAD9A2D59C5DF006E78DF /* Build configuration list for PBXNativeTarget "hydr8buddy Watch AppUITests" */;
+			buildPhases = (
+				96BDAD822D59C5DF006E78DF /* Sources */,
+				96BDAD832D59C5DF006E78DF /* Frameworks */,
+				96BDAD842D59C5DF006E78DF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				96BDAD882D59C5DF006E78DF /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				96BDAD892D59C5DF006E78DF /* hydr8buddy Watch AppUITests */,
+			);
+			name = "hydr8buddy Watch AppUITests";
+			packageProductDependencies = (
+			);
+			productName = "hydr8buddy Watch AppUITests";
+			productReference = 96BDAD862D59C5DF006E78DF /* hydr8buddy Watch AppUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		96BDAD5E2D59C5DE006E78DF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1620;
+				LastUpgradeCheck = 1620;
+				TargetAttributes = {
+					96BDAD632D59C5DE006E78DF = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					96BDAD692D59C5DE006E78DF = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					96BDAD7B2D59C5DF006E78DF = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 96BDAD692D59C5DE006E78DF;
+					};
+					96BDAD852D59C5DF006E78DF = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 96BDAD692D59C5DE006E78DF;
+					};
+				};
+			};
+			buildConfigurationList = 96BDAD612D59C5DE006E78DF /* Build configuration list for PBXProject "hydr8buddy" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 96BDAD5D2D59C5DE006E78DF;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 96BDAD652D59C5DE006E78DF /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				96BDAD632D59C5DE006E78DF /* hydr8buddy */,
+				96BDAD692D59C5DE006E78DF /* hydr8buddy Watch App */,
+				96BDAD7B2D59C5DF006E78DF /* hydr8buddy Watch AppTests */,
+				96BDAD852D59C5DF006E78DF /* hydr8buddy Watch AppUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		96BDAD622D59C5DE006E78DF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		96BDAD682D59C5DE006E78DF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		96BDAD7A2D59C5DF006E78DF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		96BDAD842D59C5DF006E78DF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		96BDAD662D59C5DE006E78DF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		96BDAD782D59C5DF006E78DF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		96BDAD822D59C5DF006E78DF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		96BDAD6D2D59C5DE006E78DF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 96BDAD692D59C5DE006E78DF /* hydr8buddy Watch App */;
+			targetProxy = 96BDAD6C2D59C5DE006E78DF /* PBXContainerItemProxy */;
+		};
+		96BDAD7E2D59C5DF006E78DF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 96BDAD692D59C5DE006E78DF /* hydr8buddy Watch App */;
+			targetProxy = 96BDAD7D2D59C5DF006E78DF /* PBXContainerItemProxy */;
+		};
+		96BDAD882D59C5DF006E78DF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 96BDAD692D59C5DE006E78DF /* hydr8buddy Watch App */;
+			targetProxy = 96BDAD872D59C5DF006E78DF /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		96BDAD8E2D59C5DF006E78DF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		96BDAD8F2D59C5DF006E78DF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		96BDAD912D59C5DF006E78DF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"hydr8buddy Watch App/Preview Content\"";
+				DEVELOPMENT_TEAM = 6W3S8BWW32;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = hydr8buddy;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKWatchOnly = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = zoaa.hydr8buddy.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 11.2;
+			};
+			name = Debug;
+		};
+		96BDAD922D59C5DF006E78DF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"hydr8buddy Watch App/Preview Content\"";
+				DEVELOPMENT_TEAM = 6W3S8BWW32;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = hydr8buddy;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKWatchOnly = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = zoaa.hydr8buddy.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 11.2;
+			};
+			name = Release;
+		};
+		96BDAD952D59C5DF006E78DF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6W3S8BWW32;
+				INFOPLIST_KEY_CFBundleDisplayName = hydr8buddy;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = zoaa.hydr8buddy;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		96BDAD962D59C5DF006E78DF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6W3S8BWW32;
+				INFOPLIST_KEY_CFBundleDisplayName = hydr8buddy;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = zoaa.hydr8buddy;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		96BDAD982D59C5DF006E78DF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6W3S8BWW32;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "zoaa.hydr8buddy-Watch-AppTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/hydr8buddy Watch App.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/hydr8buddy Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 11.2;
+			};
+			name = Debug;
+		};
+		96BDAD992D59C5DF006E78DF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6W3S8BWW32;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "zoaa.hydr8buddy-Watch-AppTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/hydr8buddy Watch App.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/hydr8buddy Watch App";
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 11.2;
+			};
+			name = Release;
+		};
+		96BDAD9B2D59C5DF006E78DF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6W3S8BWW32;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "zoaa.hydr8buddy-Watch-AppUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = "hydr8buddy Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 11.2;
+			};
+			name = Debug;
+		};
+		96BDAD9C2D59C5DF006E78DF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6W3S8BWW32;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "zoaa.hydr8buddy-Watch-AppUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = "hydr8buddy Watch App";
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 11.2;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		96BDAD612D59C5DE006E78DF /* Build configuration list for PBXProject "hydr8buddy" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				96BDAD8E2D59C5DF006E78DF /* Debug */,
+				96BDAD8F2D59C5DF006E78DF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		96BDAD902D59C5DF006E78DF /* Build configuration list for PBXNativeTarget "hydr8buddy Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				96BDAD912D59C5DF006E78DF /* Debug */,
+				96BDAD922D59C5DF006E78DF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		96BDAD942D59C5DF006E78DF /* Build configuration list for PBXNativeTarget "hydr8buddy" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				96BDAD952D59C5DF006E78DF /* Debug */,
+				96BDAD962D59C5DF006E78DF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		96BDAD972D59C5DF006E78DF /* Build configuration list for PBXNativeTarget "hydr8buddy Watch AppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				96BDAD982D59C5DF006E78DF /* Debug */,
+				96BDAD992D59C5DF006E78DF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		96BDAD9A2D59C5DF006E78DF /* Build configuration list for PBXNativeTarget "hydr8buddy Watch AppUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				96BDAD9B2D59C5DF006E78DF /* Debug */,
+				96BDAD9C2D59C5DF006E78DF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 96BDAD5E2D59C5DE006E78DF /* Project object */;
+}
