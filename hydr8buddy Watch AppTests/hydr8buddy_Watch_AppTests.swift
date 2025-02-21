@@ -2,7 +2,7 @@
 //  hydr8buddy_Watch_AppTests.swift
 //  hydr8buddy Watch AppTests
 //
-//  Created by Abdul Aziz Abdurrab on 2/9/25.
+//  Created by Omar Abdulaziz on 2/9/25.
 //
 
 import Testing

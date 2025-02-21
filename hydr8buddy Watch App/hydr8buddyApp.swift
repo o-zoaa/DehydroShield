@@ -1,17 +1,34 @@
-//
-//  hydr8buddyApp.swift
-//  hydr8buddy Watch App
-//
-//  Created by Abdul Aziz Abdurrab on 2/9/25.
-//
-
 import SwiftUI
 
 @main
-struct hydr8buddy_Watch_AppApp: App {
+struct Hydr8BuddyApp: App {
+    @StateObject private var healthDataManager = HealthDataManager()
+    @StateObject private var historyManager = DehydrationHistoryManager()
+    @StateObject private var profileManager = ProfileManager()
+    @StateObject private var waterIntakeManager = WaterIntakeManager()
+    @StateObject private var debugSettings = DebugSettings() // Added DebugSettings
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if profileManager.profile == nil {
+                OnboardingView()
+                    .environmentObject(profileManager)
+                    .environmentObject(debugSettings) // Inject DebugSettings here
+                    .background(Color.black)
+                    .onAppear {
+                        healthDataManager.requestAuthorization()
+                    }
+            } else {
+                ContentView()
+                    .environmentObject(healthDataManager)
+                    .environmentObject(historyManager)
+                    .environmentObject(profileManager)
+                    .environmentObject(waterIntakeManager)
+                    .environmentObject(debugSettings) // Inject DebugSettings here
+                    .onAppear {
+                        healthDataManager.requestAuthorization()
+                    }
+            }
         }
     }
 }

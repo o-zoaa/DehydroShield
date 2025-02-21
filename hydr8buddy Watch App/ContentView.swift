@@ -1,24 +1,28 @@
 //
 //  ContentView.swift
-//  hydr8buddy Watch App
+//  hydr8buddy
 //
-//  Created by Abdul Aziz Abdurrab on 2/9/25.
+//  Created by Omar Abdulaziz on 2/14/25.
 //
 
 import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        NavigationView {
+            TabView {
+                MainHydrationView().tag(0)
+                WaterIntakeView().tag(1)
+                RiskBreakdownView().tag(2)
+                StatsView().tag(3)
+            }
+            .tabViewStyle(.carousel)
         }
-        .padding()
     }
 }
 
-#Preview {
-    ContentView()
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
 }
