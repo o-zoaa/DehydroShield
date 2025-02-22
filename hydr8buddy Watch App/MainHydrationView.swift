@@ -39,8 +39,10 @@ struct MainHydrationView: View {
                         showDebugView = true
                     }) {
                         Image(systemName: "gearshape.fill")
-                            .font(.headline)
-                            .foregroundColor(.blue)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: AppTheme.bottomIconSize, height: AppTheme.bottomIconSize)
+                            .foregroundColor(AppTheme.bottomIconColor)
                             .padding(.leading, 8)
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -70,12 +72,14 @@ struct MainHydrationView: View {
                 
                 Spacer()
                 
-                // Bottom row with weekly risk icon (left) and profile icon (right)
+                // Bottom row with navigation icons
                 HStack {
-                    NavigationLink(destination: WeeklyRiskView()) {
+                    NavigationLink(destination: WaterIntakeView()) {
                         Image(systemName: AppTheme.chartIconName)
-                            .font(.headline)
-                            .foregroundColor(.blue)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: AppTheme.bottomIconSize, height: AppTheme.bottomIconSize)
+                            .foregroundColor(AppTheme.bottomIconColor)
                     }
                     .buttonStyle(PlainButtonStyle())
                     
@@ -83,8 +87,10 @@ struct MainHydrationView: View {
                     
                     NavigationLink(destination: ProfileView()) {
                         Image(systemName: AppTheme.profileIconName)
-                            .font(.headline)
-                            .foregroundColor(.blue)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: AppTheme.bottomIconSize, height: AppTheme.bottomIconSize)
+                            .foregroundColor(AppTheme.bottomIconColor)
                     }
                     .buttonStyle(PlainButtonStyle())
                 }
@@ -93,88 +99,80 @@ struct MainHydrationView: View {
             }
         }
         .onAppear {
-            // Compute ring fractions on appear
-            DispatchQueue.main.async {
-                healthDataManager.refreshData()
-                
-                // Compute intermediate values for the hybrid formula:
-                let liveHR = healthDataManager.heartRate ?? 60.0
-                let liveSteps = Double(healthDataManager.stepCount ?? 0)
-                let liveAE = healthDataManager.activeEnergy ?? 0.0
-                let liveEX = healthDataManager.exerciseTime ?? 0.0
-                let liveDist = Double(healthDataManager.distance ?? 0)
-                // Use the 5-day rolling window for water intake:
-                let liveWater = waterIntakeManager.waterIntakeLast5Days
-                // Multiply recommended water by 5 for a 5-day period:
-                let recommendedWater = computeRecommendedWater(profile: profileManager.profile) * 5
-                
-                // Compute an activity index as the average of normalized activity metrics.
-                let normSteps = min(liveSteps / 10000.0, 1.0)
-                let normDistance = min(liveDist / 5000.0, 1.0)
-                let normActiveEnergy = min(liveAE / 500.0, 1.0)
-                let normExerciseTime = min(liveEX / 30.0, 1.0)
-                let activityIndex = (normSteps + normDistance + normActiveEnergy + normExerciseTime) / 4.0
-                
-                // Compute HR_index assuming resting HR = 60 and max HR = 180.
-                let HR_index = min(max((liveHR - 60.0) / (180.0 - 60.0), 0.0), 1.0)
-                
-                // For now, assume body temperature is normal (e.g., 37.0°C) and delta is 0.
-                let bodyTemperature = 37.0
-                let delta = 0.0
-                
-                let computedRisk = computeHybridDehydrationRisk(
-                    waterIntake: liveWater,
-                    recommendedWater: recommendedWater,
-                    activityIndex: activityIndex,
-                    HR_index: HR_index,
-                    bodyTemperature: bodyTemperature,
-                    delta: delta
-                )
-                
-                // Compute the water fraction based on a 5-day window.
-                let computedWater = min(liveWater / recommendedWater, 1.0)
-                
-                // Debug prints to check water intake and risk calculation
-                print("Live Water (5 days): \(liveWater) ml")
-                print("Recommended Water (5 days): \(recommendedWater) ml")
-                print("Water Deficit: \(1 - min(liveWater / recommendedWater, 1.0))")
-                print("Activity Index: \(activityIndex)")
-                print("HR Index: \(HR_index)")
-                print("Overall Risk: \(computedRisk)")
-                print("Computed Water Fraction: \(computedWater)")
-                
-                // Animate the outer (risk) and inner (water) rings with adjustable durations.
-                withAnimation(.easeInOut(duration: AppTheme.riskAnimationDuration)) {
-                    displayedRiskFraction = computedRisk
-                }
-                withAnimation(.easeInOut(duration: AppTheme.waterAnimationDuration)) {
-                    displayedWaterFraction = computedWater
-                }
-                
-                // Vibration logic:
-                // Vibrate on app launch if no previous risk exists and computedRisk is high,
-                // or if risk transitions from below to at/above the high risk threshold.
-                if let prev = previousRiskFraction {
-                    if prev < AppTheme.highRiskThreshold && computedRisk >= AppTheme.highRiskThreshold {
-                        WKInterfaceDevice.current().play(.notification)
-                    }
-                } else {
-                    if computedRisk >= AppTheme.highRiskThreshold {
-                        WKInterfaceDevice.current().play(.notification)
-                    }
-                }
-                previousRiskFraction = computedRisk
-                
-                historyManager.saveTodayRisk(computedRisk)
-            }
+            // Trigger an immediate refresh when the view appears.
+            healthDataManager.refreshData()
+            updateRings()
         }
-        // Hidden NavigationLink for DebugView
+        // Use a task to trigger another update after a short delay.
+        .task {
+            try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds delay
+            healthDataManager.refreshData()
+            updateRings()
+        }
         .background(
             NavigationLink(destination: DebugView(), isActive: $showDebugView) {
                 EmptyView()
             }
             .hidden()
         )
+    }
+    
+    private func updateRings() {
+        // Compute intermediate values for the hybrid formula:
+        let liveHR = healthDataManager.heartRate ?? 60.0
+        let liveSteps = Double(healthDataManager.stepCount ?? 0)
+        let liveAE = healthDataManager.activeEnergy ?? 0.0
+        let liveEX = healthDataManager.exerciseTime ?? 0.0
+        let liveDist = Double(healthDataManager.distance ?? 0)
+        // Use 24-hour water intake for ring display.
+        let liveWater = waterIntakeManager.waterIntakeLast24Hours
+        let recommendedWater = computeRecommendedWater(profile: profileManager.profile)
+        
+        // Compute normalized activity metrics.
+        let normSteps = min(liveSteps / 10000.0, 1.0)
+        let normDistance = min(liveDist / 5000.0, 1.0)
+        let normActiveEnergy = min(liveAE / 500.0, 1.0)
+        let normExerciseTime = min(liveEX / 30.0, 1.0)
+        let activityIndex = (normSteps + normDistance + normActiveEnergy + normExerciseTime) / 4.0
+        
+        // Compute HR index assuming resting HR = 60 and max HR = 180.
+        let HR_index = min(max((liveHR - 60.0) / (180.0 - 60.0), 0.0), 1.0)
+        
+        // Assume normal body temperature (37°C) and no change (delta = 0).
+        let bodyTemperature = 37.0
+        let delta = 0.0
+        
+        let computedRisk = computeHybridDehydrationRisk(
+            waterIntake: liveWater,
+            recommendedWater: recommendedWater,
+            activityIndex: activityIndex,
+            HR_index: HR_index,
+            bodyTemperature: bodyTemperature,
+            delta: delta
+        )
+        
+        let computedWater = min(liveWater / recommendedWater, 1.0)
+        
+        withAnimation(.easeInOut(duration: AppTheme.riskAnimationDuration)) {
+            displayedRiskFraction = computedRisk
+        }
+        withAnimation(.easeInOut(duration: AppTheme.waterAnimationDuration)) {
+            displayedWaterFraction = computedWater
+        }
+        
+        // Vibration logic: if risk transitions from below high threshold to at/above, vibrate.
+        if let prev = previousRiskFraction {
+            if prev < AppTheme.highRiskThreshold && computedRisk >= AppTheme.highRiskThreshold {
+                WKInterfaceDevice.current().play(.notification)
+            }
+        } else {
+            if computedRisk >= AppTheme.highRiskThreshold {
+                WKInterfaceDevice.current().play(.notification)
+            }
+        }
+        previousRiskFraction = computedRisk
+        
+        historyManager.saveTodayRisk(computedRisk)
     }
 }
 

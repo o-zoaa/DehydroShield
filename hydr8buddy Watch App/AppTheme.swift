@@ -9,6 +9,23 @@ import SwiftUI
 
 /// A central place to store all configurable style values for the app.
 struct AppTheme {
+    
+    // Adjustable icon size for bottom navigation icons
+    static let bottomIconSize: CGFloat = 20
+    static let bottomIconColor: Color = .white
+    
+    static let waterPickerWidth: CGFloat = 120
+    static let waterPickerHeight: CGFloat = 100
+
+    static let riskChartLabelOffset: CGFloat = 0  // Adjust positive values to shift right, negative to shift left.
+    // Add these lines near the other AppTheme properties:
+    static let waterWeightSeg1: CGFloat = 0.70  // Last 12 hours
+    static let waterWeightSeg2: CGFloat = 0.20  // Previous 12 hours
+    static let waterWeightSeg3: CGFloat = 0.06  // Day 2
+    static let waterWeightSeg4: CGFloat = 0.02  // Day 3
+    static let waterWeightSeg5: CGFloat = 0.01  // Day 4
+    static let waterWeightSeg6: CGFloat = 0.01  // Day 5
+
     // Animation duration for the bar graph (in seconds)
     static let barAnimationDuration: Double = 1.5
     // Custom animation for the bar graph that accelerates toward the end.
@@ -230,15 +247,18 @@ struct AppTheme {
     ///  - "chart.xyaxis.line"
     ///  - "chart.line.uptrend.xyaxis"
     //static let chartIconName: String = "chart.bar.xaxis"
-    static let chartIconName: String = "chart.xyaxis.line"
+    //static let chartIconName: String = "chart.xyaxis.line"
+    static let chartIconName: String = "cup.and.saucer.fill"
+    //static let chartIconName: String = "wave.3.forward"
+    //static let chartIconName: String = "drop.circle"
     
     /// Available profile icons (SF Symbols) include:
     ///  - "person.fill"
     ///  - "person.crop.circle"
     ///  - "person.crop.circle.fill"
     ///  - "person.circle"
-    //static let profileIconName: String = "person.fill"
-    static let profileIconName: String = "person.circle"
+    static let profileIconName: String = "person.fill"
+    //static let profileIconName: String = "person.circle"
     
     // MARK: - Icon Placement Configuration
         /// Controls where the header icons (chart & profile) are placed in the MainHydrationView.

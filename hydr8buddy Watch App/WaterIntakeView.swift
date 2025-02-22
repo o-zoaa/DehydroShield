@@ -9,51 +9,51 @@ import SwiftUI
 import WatchKit
 
 struct WaterIntakeView: View {
-    @EnvironmentObject var waterIntakeManager: WaterIntakeManager  // Provided from a separate file
+    @EnvironmentObject var waterIntakeManager: WaterIntakeManager
     
-    // Common water intake options in milliliters
-    let commonAmounts: [Double] = [100, 150, 200, 250, 300]
+    // A list of possible water amounts (adjust as needed).
+    private let possibleAmounts = Array(stride(from: 10, through: 300, by: 10))
+    
+    // Currently selected amount in the picker.
+    @State private var selectedAmount: Int = 10
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .center, spacing: 16) {
-                // Header text (center-aligned)
-                Text("Water consumed in the last 24 hours: \(Int(waterIntakeManager.waterIntakeLast24Hours)) ml")
-                    .font(.subheadline)
-                    .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: .infinity)
-                    .padding(.horizontal, 16)
-                
-                // Horizontal scroll of water intake option boxes using ProfileDataBox
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
-                        ForEach(commonAmounts, id: \.self) { amount in
-                            Button(action: {
-                                waterIntakeManager.addWater(amount: amount)
-                                WKInterfaceDevice.current().play(.click)
-                            }) {
-                                ProfileDataBox(
-                                    label: "+\(Int(amount)) ml", // Changed label to include '+'
-                                    value: "",
-                                    boxGradient: AppTheme.boxGradientTeal,
-                                    onEdit: {},
-                                    showEditIcon: false,
-                                    textAlignment: .center
-                                )
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .frame(width: 60, height: 60)
-                        }
-                    }
-                    .padding(.horizontal, 16)
+        VStack(spacing: 0) {
+            
+            Spacer(minLength: 10)
+            
+            // The picker without a surrounding green box.
+            Picker("", selection: $selectedAmount) {
+                ForEach(possibleAmounts, id: \.self) { amount in
+                    Text("\(amount) ml")
+                        .font(.body)
+                        .padding(4)
+                        .background(amount == selectedAmount ? Color.orange.opacity(0.3) : Color.clear)
+                        .cornerRadius(8)
+                        .tag(amount)
                 }
-                
-                Spacer(minLength: 8)
             }
-            .padding(.vertical, 8)
+            .pickerStyle(.wheel)
+            .frame(width: AppTheme.waterPickerWidth, height: AppTheme.waterPickerHeight)
+            
+            Spacer(minLength: 10)
+            
+            Button(action: {
+                waterIntakeManager.addWater(amount: Double(selectedAmount))
+                WKInterfaceDevice.current().play(.click)
+            }) {
+                Text("+ Water")
+                    .font(.headline)
+                    .foregroundColor(.black)
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 20)
+                    .background(Color.blue)
+                    .cornerRadius(8)
+            }
+            .buttonStyle(.plain)
+            
+            Spacer(minLength: 8)
         }
-        .scrollDisabled(true)
         .navigationTitle("Water Intake")
         .navigationBarTitleDisplayMode(.inline)
         .background(Color.black.ignoresSafeArea())

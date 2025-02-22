@@ -12,7 +12,7 @@ struct ContentView: View {
         NavigationView {
             TabView {
                 MainHydrationView().tag(0)
-                WaterIntakeView().tag(1)
+                HistoricalChartView().tag(1)
                 RiskBreakdownView().tag(2)
                 StatsView().tag(3)
             }

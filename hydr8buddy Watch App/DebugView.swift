@@ -1,3 +1,10 @@
+//
+//  DebugView.swift
+//  hydr8buddy
+//
+//  Created by Omar Abdulaziz on 2/17/25.
+//
+
 import SwiftUI
 import WatchKit
 
@@ -55,8 +62,8 @@ struct DebugView: View {
                     HStack {
                         Text("Water Intake (5 days):")
                         Spacer()
-                        // Use 5-day rolling window for water intake here.
-                        Text("\(Int(waterIntakeManager.waterIntakeLast5Days)) ml")
+                        // Use weighted water intake over the last 5 days.
+                        Text("\(Int(waterIntakeManager.weightedWaterIntakeLast5Days)) ml")
                     }
                 }
                 
@@ -130,8 +137,8 @@ struct DebugView: View {
                         }
                         .disabled(!debugSettings.isDebugMode)
                         .onChange(of: debugSettings.debugWaterIntake) { newValue in
-                            // Replace 24hr water with 5-day water in debug as well.
-                            let live = waterIntakeManager.waterIntakeLast5Days
+                            // Use weighted water intake over the last 5 days.
+                            let live = waterIntakeManager.weightedWaterIntakeLast5Days
                             if newValue != live { debugSettings.isPreviewDirty = true }
                         }
                     }
@@ -176,8 +183,8 @@ struct DebugView: View {
         let liveAE = healthDataManager.activeEnergy ?? 0
         let liveEX = healthDataManager.exerciseTime ?? 0
         let liveDist = Double(healthDataManager.distance ?? 0)
-        // Use 5-day rolling window for water intake here.
-        let liveWater = waterIntakeManager.waterIntakeLast5Days
+        // Use weighted water intake over the last 5 days.
+        let liveWater = waterIntakeManager.waterIntakeLast24Hours
         
         debugSettings.debugHeartRate = liveHR
         debugSettings.debugStepCount = liveSteps
@@ -186,7 +193,7 @@ struct DebugView: View {
         debugSettings.debugDistance = liveDist
         debugSettings.debugWaterIntake = liveWater
         
-        let recommendedWater = computeRecommendedWater(profile: profileManager.profile) * 5
+        let recommendedWater = computeRecommendedWater(profile: profileManager.profile)
         
         let normSteps = min(liveSteps / 10000.0, 1.0)
         let normDistance = min(liveDist / 5000.0, 1.0)
@@ -251,10 +258,10 @@ struct DebugView: View {
         let liveAE = healthDataManager.activeEnergy ?? 0
         let liveEX = healthDataManager.exerciseTime ?? 0
         let liveDist = Double(healthDataManager.distance ?? 0)
-        // Use 5-day water intake here.
-        let liveWater = waterIntakeManager.waterIntakeLast5Days
+        // Use weighted water intake over the last 5 days.
+        let liveWater = waterIntakeManager.waterIntakeLast24Hours
         
-        let recommendedWater = computeRecommendedWater(profile: profileManager.profile) * 5
+        let recommendedWater = computeRecommendedWater(profile: profileManager.profile)
         
         let normSteps = min(liveSteps / 10000.0, 1.0)
         let normDistance = min(liveDist / 5000.0, 1.0)
@@ -278,8 +285,8 @@ struct DebugView: View {
     }
     
     private func computeLiveWater() -> Double {
-        let liveWater = waterIntakeManager.waterIntakeLast5Days
-        let recommendedWater = computeRecommendedWater(profile: profileManager.profile) * 5
+        let liveWater = waterIntakeManager.waterIntakeLast24Hours
+        let recommendedWater = computeRecommendedWater(profile: profileManager.profile)
         return min(liveWater / recommendedWater, 1.0)
     }
 }
