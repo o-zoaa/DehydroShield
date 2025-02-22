@@ -22,6 +22,7 @@ class WaterIntakeManager: ObservableObject {
     /// Adds a new water entry with the current timestamp and saves the updated logs.
     func addWater(amount: Double) {
         let newEntry = WaterLogEntry(amount: amount, date: Date())
+        print("addWater() - New water entry added:", newEntry)
         waterLogs.append(newEntry)
         saveWaterLogs()
     }
@@ -105,9 +106,13 @@ class WaterIntakeManager: ObservableObject {
     
     /// Loads the waterLogs array from UserDefaults.
     private func loadWaterLogs() {
-        guard let data = UserDefaults.standard.data(forKey: userDefaultsKey) else { return }
+        guard let data = UserDefaults.standard.data(forKey: userDefaultsKey) else {
+            print("loadWaterLogs() - No data found.")
+            return
+        }
         do {
             waterLogs = try JSONDecoder().decode([WaterLogEntry].self, from: data)
+            print("loadWaterLogs() - Loaded water logs:", waterLogs)
         } catch {
             print("Error loading water logs: \(error)")
         }

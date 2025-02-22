@@ -133,6 +133,7 @@ class HealthDataManager: ObservableObject {
             let bpmValue = sample.quantity.doubleValue(for: unit)
             DispatchQueue.main.async {
                 self?.heartRate = bpmValue
+                print("fetchLatestHeartRate() - New HR: \(bpmValue)")
             }
         }
         healthStore.execute(query)
@@ -177,6 +178,7 @@ class HealthDataManager: ObservableObject {
             let msValue = sample.quantity.doubleValue(for: HKUnit.secondUnit(with: .milli))
             DispatchQueue.main.async {
                 self?.heartRateVariability = msValue
+                print("fetchLatestHRV() - New HRV: \(msValue) ms")
             }
         }
         healthStore.execute(query)
@@ -224,6 +226,7 @@ class HealthDataManager: ObservableObject {
             let stepVal = sumQ.doubleValue(for: HKUnit.count())
             DispatchQueue.main.async {
                 self?.stepCount = stepVal
+                print("fetchDailySteps() - Steps: \(stepVal)")
             }
         }
         healthStore.execute(statsQuery)
@@ -271,6 +274,7 @@ class HealthDataManager: ObservableObject {
             let kcals = sumQ.doubleValue(for: .kilocalorie())
             DispatchQueue.main.async {
                 self?.activeEnergy = kcals
+                print("fetchActiveEnergyBurned() - Active Energy: \(kcals) kcal")
             }
         }
         healthStore.execute(statsQuery)
@@ -326,6 +330,7 @@ class HealthDataManager: ObservableObject {
             let minutes = sumQ.doubleValue(for: HKUnit.minute())
             DispatchQueue.main.async {
                 self?.exerciseTime = minutes
+                print("fetchExerciseTime() - Exercise Time: \(minutes) min")
             }
         }
         healthStore.execute(statsQuery)
@@ -381,6 +386,7 @@ class HealthDataManager: ObservableObject {
             let meters = sumQ.doubleValue(for: HKUnit.meter())
             DispatchQueue.main.async {
                 self?.distance = meters
+                print("fetchDailyDistance() - Distance: \(meters) m")
             }
         }
         healthStore.execute(statsQuery)
@@ -411,6 +417,7 @@ class HealthDataManager: ObservableObject {
             let celsiusValue = sample.quantity.doubleValue(for: HKUnit.degreeCelsius())
             DispatchQueue.main.async {
                 self?.bodyTemperature = celsiusValue
+                print("fetchLatestBodyTemperature() - New Body Temp: \(celsiusValue)°C")
             }
         }
         healthStore.execute(query)

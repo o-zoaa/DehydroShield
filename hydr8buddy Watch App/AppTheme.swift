@@ -9,6 +9,24 @@ import SwiftUI
 
 /// A central place to store all configurable style values for the app.
 struct AppTheme {
+    static let riskPointerScale: CGFloat = 12.0 / 16.0
+    // Arc parameters
+    static let riskArcStartAngle = Angle(degrees: 135)
+    static let riskArcDegrees: Double = 270
+    static let riskArcThickness: CGFloat = 18
+    static let riskArcScaleFactor: CGFloat = 0.95
+
+    // Full arc gradient from green (start) to red (end)
+    static let riskArcFullGradient = AngularGradient(
+        gradient: Gradient(stops: [
+            .init(color: .green,  location: 0.0),
+            .init(color: .yellow, location: 0.5),
+            .init(color: .red,    location: 1.0)
+        ]),
+        center: .center,
+        startAngle: .degrees(135),
+        endAngle: .degrees(405)
+    )
     
     // Adjustable icon size for bottom navigation icons
     static let bottomIconSize: CGFloat = 20
@@ -248,7 +266,8 @@ struct AppTheme {
     ///  - "chart.line.uptrend.xyaxis"
     //static let chartIconName: String = "chart.bar.xaxis"
     //static let chartIconName: String = "chart.xyaxis.line"
-    static let chartIconName: String = "cup.and.saucer.fill"
+    //static let chartIconName: String = "cup.and.saucer.fill"
+    static let chartIconName: String = "waterbottle.fill"
     //static let chartIconName: String = "wave.3.forward"
     //static let chartIconName: String = "drop.circle"
     
