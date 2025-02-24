@@ -24,9 +24,10 @@ struct HistoricalChartView: View {
     private let maxWater: Double = 3000.0
     
     var body: some View {
-        ScrollView {
+        VStack(spacing: 0) {
+            Spacer()
+            
             VStack(spacing: 16) {
-                // Combo Chart: Bars for water and line for risk.
                 if #available(watchOS 9.0, *) {
                     let comboData = makeComboData()
                     
@@ -40,11 +41,16 @@ struct HistoricalChartView: View {
                         Chart {
                             // Bars for water intake
                             ForEach(comboData) { day in
+                                let displayedWater = min(day.water, maxWater)
                                 BarMark(
                                     x: .value("Day", formattedWeekday(day.date)),
-                                    y: .value("Water", day.water)
+                                    y: .value("Water", displayedWater)
                                 )
-                                .foregroundStyle(Color.blue.opacity(0.8))
+                                .foregroundStyle(
+                                    day.water > maxWater
+                                    ? Color.green.opacity(0.8)
+                                    : Color.blue.opacity(0.8)
+                                )
                             }
                             
                             // Line and points for scaled risk
@@ -84,7 +90,7 @@ struct HistoricalChartView: View {
                         .foregroundColor(.yellow)
                 }
                 
-                // Legend moved below the chart.
+                // Legend below the chart.
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 4) {
                         Rectangle()
@@ -104,10 +110,12 @@ struct HistoricalChartView: View {
                     }
                 }
                 .padding(.horizontal, 16)
-                
             }
             .padding(.vertical, 8)
+            
+            Spacer()
         }
+        .padding(.top, AppTheme.chartTopPadding)
         .navigationTitle("Historical Charts")
         .navigationBarTitleDisplayMode(.inline)
         .background(Color.black.ignoresSafeArea())
@@ -122,8 +130,8 @@ struct HistoricalChartView: View {
         
         var combo: [ComboDay] = []
         for d in allDates {
-            let wVal = waterDays.first(where: { $0.date == d })?.water ?? 0
-            let rVal = riskDays.first(where: { $0.date == d })?.risk ?? 0
+            let wVal = waterDays.first(where: { isSameDay($0.date, d) })?.water ?? 0
+            let rVal = riskDays.first(where: { isSameDay($0.date, d) })?.risk ?? 0
             combo.append(ComboDay(date: d, water: wVal, risk: rVal))
         }
         return combo.sorted { $0.date < $1.date }
@@ -157,6 +165,11 @@ struct HistoricalChartView: View {
     // Helper function to format a date as an abbreviated weekday.
     private func formattedWeekday(_ date: Date) -> String {
         date.formatted(.dateTime.weekday(.abbreviated))
+    }
+    
+    // Helper function to compare two dates by day.
+    private func isSameDay(_ d1: Date, _ d2: Date) -> Bool {
+        Calendar.current.isDate(d1, inSameDayAs: d2)
     }
 }
 

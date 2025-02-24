@@ -15,7 +15,7 @@ struct RiskBreakdownView: View {
         let liveEX = healthDataManager.exerciseTime ?? 0.0
         let liveDist = Double(healthDataManager.distance ?? 0)
         let liveWater = waterIntakeManager.weightedWaterIntakeLast5Days
-        let recommendedWater = computeRecommendedWater(profile: profileManager.profile) * 5
+        let recommendedWater = computeRecommendedWater(profile: profileManager.profile) * (AppTheme.waterWeightSeg1 + AppTheme.waterWeightSeg2 + AppTheme.waterWeightSeg3 + AppTheme.waterWeightSeg4 + AppTheme.waterWeightSeg5)
         
         let waterDeficit = 1 - min(liveWater / recommendedWater, 1.0)
         let normSteps = min(liveSteps / 10000.0, 1.0)

@@ -9,6 +9,15 @@ import SwiftUI
 
 /// A central place to store all configurable style values for the app.
 struct AppTheme {
+    static let chartTopPadding: CGFloat = 25
+
+    // MARK: - Water Inactivity Threshold
+    static let waterInactivityThreshold: TimeInterval = 6 * 3600 // 6 hours
+    
+    // MARK: - Water Options for Notification Actions
+    // These are the same options used in WaterIntakeView.
+    static let waterOptions: [Int] = Array(stride(from: 10, through: 300, by: 10))
+
     static let riskPointerScale: CGFloat = 12.0 / 16.0
     // Arc parameters
     static let riskArcStartAngle = Angle(degrees: 135)
@@ -267,7 +276,8 @@ struct AppTheme {
     //static let chartIconName: String = "chart.bar.xaxis"
     //static let chartIconName: String = "chart.xyaxis.line"
     //static let chartIconName: String = "cup.and.saucer.fill"
-    static let chartIconName: String = "waterbottle.fill"
+    //static let chartIconName: String = "waterbottle.fill"
+    static let chartIconName: String = "mug.fill"
     //static let chartIconName: String = "wave.3.forward"
     //static let chartIconName: String = "drop.circle"
     

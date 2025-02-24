@@ -11,18 +11,19 @@ import WatchKit
 struct WaterIntakeView: View {
     @EnvironmentObject var waterIntakeManager: WaterIntakeManager
     
-    // A list of possible water amounts (adjust as needed).
+    // A list of possible water amounts.
     private let possibleAmounts = Array(stride(from: 10, through: 300, by: 10))
     
     // Currently selected amount in the picker.
     @State private var selectedAmount: Int = 10
+    // State variable to track whether water was just logged.
+    @State private var waterLogged: Bool = false
     
     var body: some View {
         VStack(spacing: 0) {
-            
             Spacer(minLength: 10)
             
-            // The picker without a surrounding green box.
+            // Wheel picker for water amounts.
             Picker("", selection: $selectedAmount) {
                 ForEach(possibleAmounts, id: \.self) { amount in
                     Text("\(amount) ml")
@@ -38,19 +39,26 @@ struct WaterIntakeView: View {
             
             Spacer(minLength: 10)
             
+            // Water logging button.
             Button(action: {
                 waterIntakeManager.addWater(amount: Double(selectedAmount))
-                WKInterfaceDevice.current().play(.click)
+                WKInterfaceDevice.current().play(.failure) // Stronger haptic feedback.
+                waterLogged = true
+                // After 5 seconds, revert the button back.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                    waterLogged = false
+                }
             }) {
-                Text("+ Water")
+                Text(waterLogged ? "Water Intake Logged" : "+ Water")
                     .font(.headline)
                     .foregroundColor(.black)
                     .padding(.vertical, 8)
                     .padding(.horizontal, 20)
-                    .background(Color.blue)
+                    .background(waterLogged ? Color.green : Color.blue)
                     .cornerRadius(8)
             }
             .buttonStyle(.plain)
+            .disabled(waterLogged)
             
             Spacer(minLength: 8)
         }

@@ -14,17 +14,17 @@ struct MainHydrationView: View {
     @EnvironmentObject var profileManager: ProfileManager
     @EnvironmentObject var waterIntakeManager: WaterIntakeManager
     
-    // For debug nav
+    // For debug navigation.
     @State private var showDebugView = false
     
-    // Default recommended water intake if no profile is available (ml)
+    // Default recommended water intake if no profile is available (ml).
     private let defaultRecommendedWaterIntake: Double = 2000
     
-    // State variables for animating the rings
+    // State variables for animating the rings.
     @State private var displayedRiskFraction: Double = 0
     @State private var displayedWaterFraction: Double = 0
     
-    // State variable to track previous risk fraction for vibration logic.
+    // State variable to track previous risk fraction for notification logic.
     @State private var previousRiskFraction: Double? = nil
     
     var body: some View {
@@ -32,9 +32,8 @@ struct MainHydrationView: View {
             Color.black.ignoresSafeArea()
             
             VStack {
-                // Top row with gear icon at top left
+                // Top row with gear icon.
                 HStack {
-                    // Gear icon => toggles DebugView
                     Button(action: {
                         showDebugView = true
                     }) {
@@ -53,11 +52,11 @@ struct MainHydrationView: View {
                 
                 Spacer()
                 
-                // Dual ring view
+                // Dual ring view.
                 DualRingView(riskFraction: displayedRiskFraction, waterFraction: displayedWaterFraction)
                     .padding()
                 
-                // Optional sensor stats
+                // Optional sensor stats.
                 if let ex = healthDataManager.exerciseTime {
                     Text(String(format: "Exercise: %.0f min", ex))
                         .font(.caption)
@@ -72,7 +71,7 @@ struct MainHydrationView: View {
                 
                 Spacer()
                 
-                // Bottom row with navigation icons
+                // Bottom row with navigation icons.
                 HStack {
                     NavigationLink(destination: WaterIntakeView()) {
                         Image(systemName: AppTheme.chartIconName)
@@ -99,13 +98,11 @@ struct MainHydrationView: View {
             }
         }
         .onAppear {
-            // Trigger an immediate refresh when the view appears.
             healthDataManager.refreshData()
             updateRings()
         }
-        // Use a task to trigger another update after a short delay.
         .task {
-            try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds delay
+            try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 second delay
             healthDataManager.refreshData()
             updateRings()
         }
@@ -119,7 +116,7 @@ struct MainHydrationView: View {
     
     private func updateRings() {
         print("=== updateRings() - START ===")
-        // Compute intermediate values for the hybrid formula:
+        // Compute intermediate values.
         let liveHR = healthDataManager.heartRate ?? 60.0
         let liveSteps = Double(healthDataManager.stepCount ?? 0)
         let liveAE = healthDataManager.activeEnergy ?? 0.0
@@ -130,7 +127,7 @@ struct MainHydrationView: View {
         // For risk calculation, use the weighted water intake over the last 5 days.
         let riskWater = waterIntakeManager.weightedWaterIntakeLast5Days
         // For risk, recommended water is for a 5‑day period.
-        let recommendedWaterForRisk = computeRecommendedWater(profile: profileManager.profile) * 5
+        let recommendedWaterForRisk = computeRecommendedWater(profile: profileManager.profile) * (AppTheme.waterWeightSeg1 + AppTheme.waterWeightSeg2 + AppTheme.waterWeightSeg3 + AppTheme.waterWeightSeg4 + AppTheme.waterWeightSeg5)
         // For display, use the daily recommended water.
         let recommendedWaterForDisplay = computeRecommendedWater(profile: profileManager.profile)
         
@@ -146,7 +143,7 @@ struct MainHydrationView: View {
         // Compute HR index assuming resting HR = 60 and max HR = 180.
         let HR_index = min(max((liveHR - 60.0) / (180.0 - 60.0), 0.0), 1.0)
         
-        // Assume normal body temperature (37°C) and no change (delta = 0).
+        // Assume normal body temperature (37°C) and no change.
         let bodyTemperature = 37.0
         let delta = 0.0
         
@@ -170,22 +167,29 @@ struct MainHydrationView: View {
             displayedWaterFraction = computedWater
         }
         
-        // Ensure UI state updates on main thread
         DispatchQueue.main.async {
             print("updateRings() - Main thread? \(Thread.isMainThread)")
             print("Displayed risk fraction: \(displayedRiskFraction), displayed water fraction: \(displayedWaterFraction)")
         }
         
-        // Vibration logic: if risk transitions from below high threshold to at/above, vibrate.
+        // -------------------------------
+        // Notification for Risk Transitions
+        // -------------------------------
         if let prev = previousRiskFraction {
-            if prev < AppTheme.highRiskThreshold && computedRisk >= AppTheme.highRiskThreshold {
-                WKInterfaceDevice.current().play(.notification)
+            if prev < AppTheme.midRiskThreshold && computedRisk >= AppTheme.midRiskThreshold {
+                NotificationManager.shared.scheduleWaterReminder(reason: "Your dehydration risk has increased to YELLOW. Consider drinking water.")
+            } else if prev < AppTheme.highRiskThreshold && computedRisk >= AppTheme.highRiskThreshold {
+                NotificationManager.shared.scheduleWaterReminder(reason: "Your dehydration risk has increased to RED. Hydrate immediately!")
             }
         } else {
             if computedRisk >= AppTheme.highRiskThreshold {
-                WKInterfaceDevice.current().play(.notification)
+                NotificationManager.shared.scheduleWaterReminder(reason: "High dehydration risk detected. Please hydrate!")
+            } else if computedRisk >= AppTheme.midRiskThreshold {
+                NotificationManager.shared.scheduleWaterReminder(reason: "Dehydration risk rising. Consider hydrating.")
             }
         }
+        
+        // Store current risk for future comparison.
         previousRiskFraction = computedRisk
         
         historyManager.saveTodayRisk(computedRisk)

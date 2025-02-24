@@ -13,10 +13,45 @@ class WaterIntakeManager: ObservableObject {
     /// Each entry records an amount (in ml) and the time it was added.
     @Published private var waterLogs: [WaterLogEntry] = []
     
+    var allWaterLogs: [WaterLogEntry] {
+        waterLogs
+    }
+    
     private let userDefaultsKey = "WaterLogs"
     
     init() {
         loadWaterLogs()
+        // Observe water log actions from notifications.
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(handleDidLogWater(_:)),
+                                               name: .didLogWater,
+                                               object: nil)
+        
+        // Upon initialization, schedule a water inactivity notification.
+        if let lastLog = lastWaterLogDate {
+            let elapsed = Date().timeIntervalSince(lastLog)
+            if elapsed < AppTheme.waterInactivityThreshold {
+                let remaining = AppTheme.waterInactivityThreshold - elapsed
+                NotificationManager.shared.scheduleWaterInactivityNotification(withDelay: remaining)
+            } else {
+                NotificationManager.shared.scheduleWaterInactivityNotification(withDelay: 1)
+            }
+        } else {
+            // No water log exists, schedule notification immediately.
+            NotificationManager.shared.scheduleWaterInactivityNotification(withDelay: 1)
+        }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    /// Called when a water log action is triggered from a notification.
+    @objc private func handleDidLogWater(_ notification: Notification) {
+        if let amount = notification.object as? Int {
+            // Logging water from notification updates the water logs and resets the inactivity timer.
+            addWater(amount: Double(amount))
+        }
     }
     
     /// Adds a new water entry with the current timestamp and saves the updated logs.
@@ -25,12 +60,16 @@ class WaterIntakeManager: ObservableObject {
         print("addWater() - New water entry added:", newEntry)
         waterLogs.append(newEntry)
         saveWaterLogs()
+        
+        // When water is logged, cancel any existing inactivity notification and schedule a new one.
+        NotificationManager.shared.cancelWaterInactivityNotification()
+        NotificationManager.shared.scheduleWaterInactivityNotification()
     }
     
     /// Computes the total water intake within the last 24 hours.
     var waterIntakeLast24Hours: Double {
         let now = Date()
-        let cutoff = now.addingTimeInterval(-24 * 60 * 60) // 24 hours ago
+        let cutoff = now.addingTimeInterval(-24 * 60 * 60)
         return waterLogs
             .filter { $0.date >= cutoff }
             .reduce(0) { $0 + $1.amount }
@@ -39,23 +78,22 @@ class WaterIntakeManager: ObservableObject {
     /// Computes the total water intake over the last 5 days.
     var waterIntakeLast5Days: Double {
         let now = Date()
-        let cutoff = now.addingTimeInterval(-5 * 24 * 60 * 60) // 5 days ago
+        let cutoff = now.addingTimeInterval(-5 * 24 * 60 * 60)
         return waterLogs
             .filter { $0.date >= cutoff }
             .reduce(0) { $0 + $1.amount }
     }
     
     /// Computes the weighted water intake over the last 5 days using exponential weights.
-    /// The weights are adjustable via AppTheme.
     var weightedWaterIntakeLast5Days: Double {
         let now = Date()
         // Define segment durations (in seconds):
-        let seg1: TimeInterval = 12 * 3600  // last 12 hours
-        let seg2: TimeInterval = 12 * 3600  // previous 12 hours (to complete day 1)
-        let seg3: TimeInterval = 24 * 3600  // day 2
-        let seg4: TimeInterval = 24 * 3600  // day 3
-        let seg5: TimeInterval = 24 * 3600  // day 4
-        let seg6: TimeInterval = 24 * 3600  // day 5
+        let seg1: TimeInterval = 12 * 3600  // Last 12 hours
+        let seg2: TimeInterval = 12 * 3600  // Previous 12 hours
+        let seg3: TimeInterval = 24 * 3600  // Day 2
+        let seg4: TimeInterval = 24 * 3600  // Day 3
+        let seg5: TimeInterval = 24 * 3600  // Day 4
+        let seg6: TimeInterval = 24 * 3600  // Day 5
         
         // Use adjustable weights from AppTheme:
         let w1 = AppTheme.waterWeightSeg1
@@ -65,7 +103,6 @@ class WaterIntakeManager: ObservableObject {
         let w5 = AppTheme.waterWeightSeg5
         let w6 = AppTheme.waterWeightSeg6
         
-        // Calculate water sum for each segment:
         let water1 = waterLogs.filter { now.timeIntervalSince($0.date) <= seg1 }
             .reduce(0) { $0 + $1.amount }
         let water2 = waterLogs.filter {
@@ -94,7 +131,6 @@ class WaterIntakeManager: ObservableObject {
     
     // MARK: - Persistence Methods
     
-    /// Saves the waterLogs array to UserDefaults.
     private func saveWaterLogs() {
         do {
             let data = try JSONEncoder().encode(waterLogs)
@@ -104,7 +140,6 @@ class WaterIntakeManager: ObservableObject {
         }
     }
     
-    /// Loads the waterLogs array from UserDefaults.
     private func loadWaterLogs() {
         guard let data = UserDefaults.standard.data(forKey: userDefaultsKey) else {
             print("loadWaterLogs() - No data found.")
@@ -119,18 +154,24 @@ class WaterIntakeManager: ObservableObject {
     }
 }
 
+extension WaterIntakeManager {
+    /// Provides the date of the last water log entry.
+    var lastWaterLogDate: Date? {
+        waterLogs.last?.date
+    }
+}
+
 /// A water log entry that records the water amount (ml) and the timestamp.
 struct WaterLogEntry: Codable {
     let amount: Double
     let date: Date
 }
 
-// New data models for detailed daily water breakdown
+/// New data models for detailed daily water breakdown.
 struct DailyWaterDetail: Identifiable, Codable {
     let id = UUID()
     let date: Date
     let segments: [WaterSegment]
-    // Computed property that sums all segment totals for the day.
     var total: Double {
         segments.reduce(0) { $0 + $1.total }
     }
@@ -142,10 +183,8 @@ struct WaterSegment: Codable {
     let total: Double
 }
 
-// New extension that returns detailed daily totals for the last 5 days.
 extension WaterIntakeManager {
-    /// Returns an array of DailyWaterDetail for each of the last 5 days (including today),
-    /// where each DailyWaterDetail contains hourly segments with the total water consumed in that hour.
+    /// Returns an array of DailyWaterDetail for each of the last 5 days (including today).
     func last5DaysDailyTotalsDetailed() -> [DailyWaterDetail] {
         let calendar = Calendar.current
         let now = Date()
@@ -159,7 +198,7 @@ extension WaterIntakeManager {
         
         var details: [DailyWaterDetail] = []
         for (day, dayLogs) in groupedByDay {
-            // Group each day's logs by hour (flooring to the start of the hour)
+            // Group each day's logs by hour.
             let groupedByHour = Dictionary(grouping: dayLogs, by: {
                 calendar.date(from: calendar.dateComponents([.year, .month, .day, .hour], from: $0.date))!
             })
@@ -170,11 +209,9 @@ extension WaterIntakeManager {
                 let hourEnd = calendar.date(byAdding: .hour, value: 1, to: hour) ?? hour
                 segments.append(WaterSegment(start: hour, end: hourEnd, total: total))
             }
-            // Sort segments by start time.
             segments.sort { $0.start < $1.start }
             details.append(DailyWaterDetail(date: day, segments: segments))
         }
-        // Return sorted by day (oldest first)
         return details.sorted { $0.date < $1.date }
     }
 }

@@ -17,6 +17,7 @@ struct Hydr8BuddyApp: App {
                     .background(Color.black)
                     .onAppear {
                         healthDataManager.requestAuthorization()
+                        NotificationManager.shared.requestAuthorization()
                     }
             } else {
                 ContentView()
@@ -27,6 +28,7 @@ struct Hydr8BuddyApp: App {
                     .environmentObject(debugSettings) // Inject DebugSettings here
                     .onAppear {
                         healthDataManager.requestAuthorization()
+                        NotificationManager.shared.requestAuthorization()
                     }
             }
         }
