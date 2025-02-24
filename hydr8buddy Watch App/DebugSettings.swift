@@ -28,4 +28,7 @@ class DebugSettings: ObservableObject {
     
     // Flag that indicates the debug metrics have been changed since the last preview update.
     @Published var isPreviewDirty: Bool = false
+    
+    // New: Flag to disable export button temporarily
+    @Published var exportDisabled: Bool = false
 }
