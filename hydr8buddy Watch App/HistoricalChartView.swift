@@ -146,20 +146,21 @@ struct HistoricalChartView: View {
         }
     }
     
-    // Example risk loader.
+    /// Groups risk entries by day and returns the last risk value for each day.
     private func last5DaysRisk() -> [(date: Date, risk: Double)] {
         let calendar = Calendar.current
         let now = Date()
         guard let cutoff = calendar.date(byAdding: .day, value: -4, to: now) else { return [] }
         
-        let raw = historyManager.dailyEntries
-            .filter { $0.date >= calendar.startOfDay(for: cutoff) }
-            .sorted { $0.date < $1.date }
-        
-        return raw.map { entry in
-            let dayStart = Calendar.current.startOfDay(for: entry.date)
-            return (dayStart, entry.risk)
+        let entries = historyManager.riskEntries.filter { $0.date >= cutoff }
+        let grouped = Dictionary(grouping: entries, by: { calendar.startOfDay(for: $0.date) })
+        var results: [(date: Date, risk: Double)] = []
+        for (day, entries) in grouped {
+            if let lastEntry = entries.sorted(by: { $0.date < $1.date }).last {
+                results.append((day, lastEntry.risk))
+            }
         }
+        return results.sorted { $0.0 < $1.0 }
     }
     
     // Helper function to format a date as an abbreviated weekday.

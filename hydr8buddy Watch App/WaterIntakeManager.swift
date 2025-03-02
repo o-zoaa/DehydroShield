@@ -21,6 +21,7 @@ class WaterIntakeManager: ObservableObject {
     
     init() {
         loadWaterLogs()
+        trimWaterLogsTo30Days()
         // Observe water log actions from notifications.
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(handleDidLogWater(_:)),
@@ -60,6 +61,7 @@ class WaterIntakeManager: ObservableObject {
         print("addWater() - New water entry added:", newEntry)
         waterLogs.append(newEntry)
         saveWaterLogs()
+        trimWaterLogsTo30Days()
         
         // When water is logged, cancel any existing inactivity notification and schedule a new one.
         NotificationManager.shared.cancelWaterInactivityNotification()
@@ -129,6 +131,13 @@ class WaterIntakeManager: ObservableObject {
         return (w1 * water1) + (w2 * water2) + (w3 * water3) + (w4 * water4) + (w5 * water5) + (w6 * water6)
     }
     
+    /// Trims water log entries to the last 30 days.
+    private func trimWaterLogsTo30Days() {
+        let cutoff = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()
+        waterLogs.removeAll { $0.date < cutoff }
+        saveWaterLogs()
+    }
+    
     // MARK: - Persistence Methods
     
     private func saveWaterLogs() {
@@ -147,7 +156,6 @@ class WaterIntakeManager: ObservableObject {
         }
         do {
             waterLogs = try JSONDecoder().decode([WaterLogEntry].self, from: data)
-            print("loadWaterLogs() - Loaded water logs:", waterLogs)
         } catch {
             print("Error loading water logs: \(error)")
         }

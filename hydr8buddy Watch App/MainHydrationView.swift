@@ -189,10 +189,12 @@ struct MainHydrationView: View {
             }
         }
         
+        // Store current risk entry (now appending instead of overwriting per day)
+        historyManager.saveRiskEntry(computedRisk)
+        
         // Store current risk for future comparison.
         previousRiskFraction = computedRisk
         
-        historyManager.saveTodayRisk(computedRisk)
         print("=== updateRings() - END ===")
     }
 }

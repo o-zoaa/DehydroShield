@@ -8,7 +8,8 @@
 import Foundation
 import SwiftUI
 
-struct DailyRiskEntry: Identifiable, Codable {
+/// Represents a single risk entry computed at a specific time.
+struct RiskEntry: Identifiable, Codable {
     let id: UUID
     let date: Date
     var risk: Double
@@ -20,84 +21,74 @@ struct DailyRiskEntry: Identifiable, Codable {
     }
 }
 
+/// Manages the history of dehydration risk entries.
+/// Every computed risk is appended, and entries are trimmed to the last 30 days.
 class DehydrationHistoryManager: ObservableObject {
-    @Published var dailyEntries: [DailyRiskEntry] = []
+    @Published var riskEntries: [RiskEntry] = []
     
-    private let userDefaultsKey = "DehydrationDailyRisk"
+    private let userDefaultsKey = "DehydrationRiskEntries"
     
     init() {
-        loadDailyRiskHistory()
-        if dailyEntries.isEmpty {
-            seedSampleDataForPastWeek()
+        loadRiskEntries()
+        if riskEntries.isEmpty {
+            seedSampleDataForPast30Days()
         }
     }
     
-    func saveTodayRisk(_ risk: Double) {
-        let today = startOfDay(Date())
-        loadDailyRiskHistory()
-        if let index = dailyEntries.firstIndex(where: { isSameDay($0.date, today) }) {
-            dailyEntries[index].risk = risk
-        } else {
-            let newEntry = DailyRiskEntry(date: today, risk: risk)
-            dailyEntries.append(newEntry)
-        }
-        persistDailyRiskHistory()
-        trimHistoryTo7Days()
+    /// Appends a new risk entry with the current timestamp.
+    func saveRiskEntry(_ risk: Double) {
+        let newEntry = RiskEntry(date: Date(), risk: risk)
+        riskEntries.append(newEntry)
+        persistRiskEntries()
+        trimEntriesTo30Days()
     }
     
-    func loadDailyRiskHistory() {
+    func loadRiskEntries() {
         let defaults = UserDefaults.standard
         guard let data = defaults.data(forKey: userDefaultsKey) else {
-            dailyEntries = []
+            riskEntries = []
             return
         }
         do {
             let decoder = JSONDecoder()
-            dailyEntries = try decoder.decode([DailyRiskEntry].self, from: data)
+            riskEntries = try decoder.decode([RiskEntry].self, from: data)
+            trimEntriesTo30Days() // Ensure we only keep the last 30 days
         } catch {
-            print("Error decoding daily risk data: \(error)")
-            dailyEntries = []
+            print("Error decoding risk data: \(error)")
+            riskEntries = []
         }
     }
     
-    func trimHistoryTo7Days() {
-        let cutOff = Calendar.current.date(byAdding: .day, value: -7, to: Date()) ?? Date()
-        dailyEntries.removeAll { $0.date < startOfDay(cutOff) }
-        persistDailyRiskHistory()
+    /// Trims risk entries to only the last 30 days.
+    func trimEntriesTo30Days() {
+        let cutoff = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()
+        riskEntries.removeAll { $0.date < cutoff }
+        persistRiskEntries()
     }
     
-    private func seedSampleDataForPastWeek() {
+    private func seedSampleDataForPast30Days() {
         let cal = Calendar.current
         let now = Date()
+        // For sample purposes, generate one entry per day for the last 7 days.
         let sampleRisks: [Double] = [0.25, 0.35, 0.2, 0.55, 0.7, 0.4, 0.85]
         for i in 0..<7 {
             guard let day = cal.date(byAdding: .day, value: -i, to: now) else { continue }
-            let dayStart = startOfDay(day)
             let risk = sampleRisks.reversed()[i]
-            let entry = DailyRiskEntry(date: dayStart, risk: risk)
-            dailyEntries.append(entry)
+            let entry = RiskEntry(date: day, risk: risk)
+            riskEntries.append(entry)
         }
-        dailyEntries.sort(by: { $0.date < $1.date })
-        persistDailyRiskHistory()
+        riskEntries.sort(by: { $0.date < $1.date })
+        persistRiskEntries()
     }
     
-    private func persistDailyRiskHistory() {
+    private func persistRiskEntries() {
         let defaults = UserDefaults.standard
         do {
             let encoder = JSONEncoder()
-            let data = try encoder.encode(dailyEntries)
+            let data = try encoder.encode(riskEntries)
             defaults.set(data, forKey: userDefaultsKey)
         } catch {
-            print("Error encoding daily risk data: \(error)")
+            print("Error encoding risk data: \(error)")
         }
     }
-    
-    private func startOfDay(_ date: Date) -> Date {
-        Calendar.current.startOfDay(for: date)
-    }
-    
-    private func isSameDay(_ d1: Date, _ d2: Date) -> Bool {
-        Calendar.current.isDate(d1, inSameDayAs: d2)
-    }
 }
-
