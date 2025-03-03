@@ -20,6 +20,18 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         UNUserNotificationCenter.current().delegate = self
     }
     
+    /// Requests notification authorization from the user.
+    func requestAuthorization() {
+        let options: UNAuthorizationOptions = [.alert, .sound, .badge]
+        UNUserNotificationCenter.current().requestAuthorization(options: options) { granted, error in
+            if let error = error {
+                print("Notification authorization error: \(error.localizedDescription)")
+            } else {
+                print("Notification authorization granted: \(granted)")
+            }
+        }
+    }
+    
     /// Schedules a debug water reminder notification with a given reason,
     /// using a delay (e.g. 10 seconds) so that the notification appears after the app is backgrounded.
     func scheduleDebugWaterReminder(reason: String) {
@@ -29,7 +41,9 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         content.categoryIdentifier = "WATER_LOG_CATEGORY"
         content.sound = .default
 
-        // For debug simulation, trigger after 10 seconds.
+        // Post pre-notification event.
+        NotificationCenter.default.post(name: .waterReminderScheduled, object: nil)
+        
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 10, repeats: false)
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
         
@@ -42,43 +56,6 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         }
     }
     
-    /// Request authorization for notifications.
-    func requestAuthorization() {
-        let options: UNAuthorizationOptions = [.alert, .sound, .badge]
-        UNUserNotificationCenter.current().requestAuthorization(options: options) { granted, error in
-            if granted {
-                print("Notification authorization granted.")
-                self.setupNotificationCategories()
-            } else {
-                if let error = error {
-                    print("Notification authorization error: \(error.localizedDescription)")
-                } else {
-                    print("Notification authorization denied.")
-                }
-            }
-        }
-    }
-    
-    /// Set up the notification category and actions using the same water options as WaterIntakeView.
-    func setupNotificationCategories() {
-        // Dynamically create actions from the waterOptions array in AppTheme.
-        var actions: [UNNotificationAction] = []
-        for amount in AppTheme.waterOptions {
-            let identifier = "LOG_\(amount)"
-            let title = "\(amount) ml"
-            let action = UNNotificationAction(identifier: identifier, title: title, options: [])
-            actions.append(action)
-        }
-        
-        // Create a notification category that uses these actions.
-        let category = UNNotificationCategory(identifier: "WATER_LOG_CATEGORY",
-                                              actions: actions,
-                                              intentIdentifiers: [],
-                                              options: [.customDismissAction])
-        UNUserNotificationCenter.current().setNotificationCategories([category])
-        print("Notification categories set up with actions: \(actions.map { $0.title })")
-    }
-    
     /// Schedules a water reminder notification with a given reason.
     func scheduleWaterReminder(reason: String) {
         let content = UNMutableNotificationContent()
@@ -87,7 +64,9 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         content.categoryIdentifier = "WATER_LOG_CATEGORY"
         content.sound = .default
         
-        // For demonstration, trigger after 1 second.
+        // Post pre-notification event.
+        NotificationCenter.default.post(name: .waterReminderScheduled, object: nil)
+        
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
         
@@ -100,16 +79,10 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         }
     }
     
-    /// Schedules a repeating water inactivity notification that fires every half the normal time.
-    /// If the computed delay is less than 60 seconds (the system minimum), it uses 60 seconds.
-    /// This will continue until water is logged and cancelWaterInactivityNotification() is called.
+    /// Schedules a repeating water inactivity notification.
     func scheduleWaterInactivityNotification(withDelay delay: TimeInterval? = nil) {
-        // Calculate half of the normal inactivity threshold.
         var delayTime = delay ?? (AppTheme.waterInactivityThreshold / 2)
-        // Enforce a minimum of 60 seconds for repeating notifications.
-        if delayTime < 60 {
-            delayTime = 60
-        }
+        if delayTime < 60 { delayTime = 60 }
         
         let content = UNMutableNotificationContent()
         content.title = "Hydration Reminder"
@@ -117,7 +90,6 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         content.categoryIdentifier = "WATER_LOG_CATEGORY"
         content.sound = .default
         
-        // Create a repeating trigger.
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: delayTime, repeats: true)
         let request = UNNotificationRequest(identifier: "WATER_INACTIVITY_NOTIFICATION", content: content, trigger: trigger)
         
@@ -138,24 +110,19 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     
     // MARK: - UNUserNotificationCenterDelegate Methods
     
-    /// Called when the user responds to a notification action.
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 didReceive response: UNNotificationResponse,
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
-        // If the action identifier starts with "LOG_", log water accordingly.
         if response.actionIdentifier.hasPrefix("LOG_") {
             let amountString = response.actionIdentifier.replacingOccurrences(of: "LOG_", with: "")
             if let amount = Int(amountString) {
                 NotificationCenter.default.post(name: .didLogWater, object: amount)
                 print("User selected to log \(amount) ml of water.")
             }
-        }
-        else {
-            // For other cases (dismissal or default tap), just log the event.
+        } else {
             switch response.actionIdentifier {
             case UNNotificationDismissActionIdentifier:
                 print("Notification dismissed.")
-                // Here we do not reschedule a new notification because the repeating trigger will continue.
             case UNNotificationDefaultActionIdentifier:
                 print("Default notification tapped.")
             default:
@@ -167,7 +134,8 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
 }
 
 extension Notification.Name {
-    /// Post this notification when a water log action is triggered.
     static let didLogWater = Notification.Name("didLogWater")
+    static let waterReminderScheduled = Notification.Name("waterReminderScheduled")
+    static let waterLogged = Notification.Name("waterLogged")
+    // 'healthDataUpdated' is declared in HealthDataManager.swift.
 }
-

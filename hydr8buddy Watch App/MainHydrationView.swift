@@ -106,6 +106,14 @@ struct MainHydrationView: View {
             healthDataManager.refreshData()
             updateRings()
         }
+        // Trigger risk recalculation when new HealthKit data arrives.
+        .onReceive(NotificationCenter.default.publisher(for: .healthDataUpdated)) { _ in
+            updateRings()
+        }
+        // Trigger risk recalculation when water is logged (via notification or in-app).
+        .onReceive(NotificationCenter.default.publisher(for: .waterLogged)) { _ in
+            updateRings()
+        }
         .background(
             NavigationLink(destination: DebugView(), isActive: $showDebugView) {
                 EmptyView()
@@ -127,7 +135,8 @@ struct MainHydrationView: View {
         // For risk calculation, use the weighted water intake over the last 5 days.
         let riskWater = waterIntakeManager.weightedWaterIntakeLast5Days
         // For risk, recommended water is for a 5‑day period.
-        let recommendedWaterForRisk = computeRecommendedWater(profile: profileManager.profile) * (AppTheme.waterWeightSeg1 + AppTheme.waterWeightSeg2 + AppTheme.waterWeightSeg3 + AppTheme.waterWeightSeg4 + AppTheme.waterWeightSeg5)
+        let recommendedWaterForRisk = computeRecommendedWater(profile: profileManager.profile) *
+            (AppTheme.waterWeightSeg1 + AppTheme.waterWeightSeg2 + AppTheme.waterWeightSeg3 + AppTheme.waterWeightSeg4 + AppTheme.waterWeightSeg5)
         // For display, use the daily recommended water.
         let recommendedWaterForDisplay = computeRecommendedWater(profile: profileManager.profile)
         
@@ -172,9 +181,7 @@ struct MainHydrationView: View {
             print("Displayed risk fraction: \(displayedRiskFraction), displayed water fraction: \(displayedWaterFraction)")
         }
         
-        // -------------------------------
-        // Notification for Risk Transitions
-        // -------------------------------
+        // Notification for Risk Transitions.
         if let prev = previousRiskFraction {
             if prev < AppTheme.midRiskThreshold && computedRisk >= AppTheme.midRiskThreshold {
                 NotificationManager.shared.scheduleWaterReminder(reason: "Your dehydration risk has increased to YELLOW. Consider drinking water.")
@@ -189,10 +196,8 @@ struct MainHydrationView: View {
             }
         }
         
-        // Store current risk entry (now appending instead of overwriting per day)
+        // Save the current risk entry.
         historyManager.saveRiskEntry(computedRisk)
-        
-        // Store current risk for future comparison.
         previousRiskFraction = computedRisk
         
         print("=== updateRings() - END ===")

@@ -9,7 +9,7 @@ import Foundation
 import HealthKit
 import SwiftUI
 
-/// Manages HealthKit operations for heart rate, HRV, steps, active energy, exercise time, distance, and body temperature.
+/// Manages HealthKit operations for various health metrics.
 class HealthDataManager: ObservableObject {
     private let healthStore = HKHealthStore()
     
@@ -21,6 +21,7 @@ class HealthDataManager: ObservableObject {
     @Published var distance: Double?               // Distance walked/ran (meters) today
     @Published var bodyTemperature: Double?        // Body temperature in Celsius
     
+    // Flags to ensure observers are added only once.
     private var isObservingHeartRate = false
     private var isObservingHRV = false
     private var isObservingSteps = false
@@ -58,15 +59,9 @@ class HealthDataManager: ObservableObject {
             guard let self = self else { return }
             
             if success {
-                // Delay fetching by 1 second to allow authorization state to settle.
                 DispatchQueue.main.async {
-                    self.fetchLatestHeartRate()
-                    self.fetchLatestHRV()
-                    self.fetchDailySteps()
-                    self.fetchActiveEnergyBurned()
-                    self.fetchExerciseTime()
-                    self.fetchDailyDistance()
-                    self.fetchLatestBodyTemperature()
+                    // Refresh all health data.
+                    self.refreshData()
                     
                     self.startObservingHeartRate()
                     self.startObservingHRV()
@@ -82,7 +77,7 @@ class HealthDataManager: ObservableObject {
         }
     }
     
-    // MARK: - Manual Data Refresh
+    /// Refreshes all health data by calling each fetch method.
     func refreshData() {
         fetchLatestHeartRate()
         fetchLatestHRV()
@@ -93,7 +88,8 @@ class HealthDataManager: ObservableObject {
         fetchLatestBodyTemperature()
     }
     
-    // MARK: - Heart Rate
+    // MARK: - Observing and Fetching Health Data
+    
     private func startObservingHeartRate() {
         guard !isObservingHeartRate else { return }
         isObservingHeartRate = true
@@ -133,13 +129,13 @@ class HealthDataManager: ObservableObject {
             let bpmValue = sample.quantity.doubleValue(for: unit)
             DispatchQueue.main.async {
                 self?.heartRate = bpmValue
+                NotificationCenter.default.post(name: .healthDataUpdated, object: nil)
                 print("fetchLatestHeartRate() - New HR: \(bpmValue)")
             }
         }
         healthStore.execute(query)
     }
     
-    // MARK: - HRV
     private func startObservingHRV() {
         guard !isObservingHRV else { return }
         isObservingHRV = true
@@ -178,13 +174,13 @@ class HealthDataManager: ObservableObject {
             let msValue = sample.quantity.doubleValue(for: HKUnit.secondUnit(with: .milli))
             DispatchQueue.main.async {
                 self?.heartRateVariability = msValue
+                NotificationCenter.default.post(name: .healthDataUpdated, object: nil)
                 print("fetchLatestHRV() - New HRV: \(msValue) ms")
             }
         }
         healthStore.execute(query)
     }
     
-    // MARK: - Steps
     private func startObservingSteps() {
         guard !isObservingSteps else { return }
         isObservingSteps = true
@@ -226,13 +222,13 @@ class HealthDataManager: ObservableObject {
             let stepVal = sumQ.doubleValue(for: HKUnit.count())
             DispatchQueue.main.async {
                 self?.stepCount = stepVal
+                NotificationCenter.default.post(name: .healthDataUpdated, object: nil)
                 print("fetchDailySteps() - Steps: \(stepVal)")
             }
         }
         healthStore.execute(statsQuery)
     }
     
-    // MARK: - Active Energy
     private func startObservingActiveEnergy() {
         guard !isObservingActiveEnergy else { return }
         isObservingActiveEnergy = true
@@ -274,13 +270,13 @@ class HealthDataManager: ObservableObject {
             let kcals = sumQ.doubleValue(for: .kilocalorie())
             DispatchQueue.main.async {
                 self?.activeEnergy = kcals
+                NotificationCenter.default.post(name: .healthDataUpdated, object: nil)
                 print("fetchActiveEnergyBurned() - Active Energy: \(kcals) kcal")
             }
         }
         healthStore.execute(statsQuery)
     }
     
-    // MARK: - Exercise Time
     private func startObservingExerciseTime() {
         guard !isObservingExerciseTime else { return }
         isObservingExerciseTime = true
@@ -307,7 +303,6 @@ class HealthDataManager: ObservableObject {
     func fetchExerciseTime() {
         guard let exerciseTimeType = HKObjectType.quantityType(forIdentifier: .appleExerciseTime) else { return }
         
-        // Check authorization status for exercise time before executing the query.
         let status = healthStore.authorizationStatus(for: exerciseTimeType)
         if status != .sharingAuthorized {
             print("Fetch Exercise Time error: Authorization not determined")
@@ -330,13 +325,13 @@ class HealthDataManager: ObservableObject {
             let minutes = sumQ.doubleValue(for: HKUnit.minute())
             DispatchQueue.main.async {
                 self?.exerciseTime = minutes
+                NotificationCenter.default.post(name: .healthDataUpdated, object: nil)
                 print("fetchExerciseTime() - Exercise Time: \(minutes) min")
             }
         }
         healthStore.execute(statsQuery)
     }
     
-    // MARK: - Distance
     private func startObservingDistance() {
         guard !isObservingDistance else { return }
         isObservingDistance = true
@@ -363,7 +358,6 @@ class HealthDataManager: ObservableObject {
     func fetchDailyDistance() {
         guard let distanceType = HKObjectType.quantityType(forIdentifier: .distanceWalkingRunning) else { return }
         
-        // Check authorization status for distance before executing the query.
         let status = healthStore.authorizationStatus(for: distanceType)
         if status != .sharingAuthorized {
             print("Fetch Distance error: Authorization not determined")
@@ -386,17 +380,16 @@ class HealthDataManager: ObservableObject {
             let meters = sumQ.doubleValue(for: HKUnit.meter())
             DispatchQueue.main.async {
                 self?.distance = meters
+                NotificationCenter.default.post(name: .healthDataUpdated, object: nil)
                 print("fetchDailyDistance() - Distance: \(meters) m")
             }
         }
         healthStore.execute(statsQuery)
     }
     
-    // MARK: - Body Temperature (New)
     func fetchLatestBodyTemperature() {
         guard let temperatureType = HKObjectType.quantityType(forIdentifier: .bodyTemperature) else { return }
         
-        // Check authorization status for body temperature before querying.
         let status = healthStore.authorizationStatus(for: temperatureType)
         if status != .sharingAuthorized {
             print("Fetch Body Temperature error: Authorization not determined")
@@ -413,10 +406,10 @@ class HealthDataManager: ObservableObject {
                 print("No body temperature samples found.")
                 return
             }
-            // Assume temperature is recorded in Celsius.
             let celsiusValue = sample.quantity.doubleValue(for: HKUnit.degreeCelsius())
             DispatchQueue.main.async {
                 self?.bodyTemperature = celsiusValue
+                NotificationCenter.default.post(name: .healthDataUpdated, object: nil)
                 print("fetchLatestBodyTemperature() - New Body Temp: \(celsiusValue)°C")
             }
         }
@@ -445,4 +438,8 @@ class HealthDataManager: ObservableObject {
             }
         }
     }
+}
+
+extension Notification.Name {
+    static let healthDataUpdated = Notification.Name("healthDataUpdated")
 }

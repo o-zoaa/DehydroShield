@@ -27,19 +27,32 @@ struct DebugView: View {
                         }
                 }
                 
-                // MARK: - Export Data Section (CloudKit Approach)
+                // MARK: - Export Data & Saved Counts Box
                 Section {
-                    Button(action: {
-                        exportData()
-                    }) {
-                        Text("Export Data")
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(debugSettings.isDebugMode ? Color.blue : Color.gray)
-                            .foregroundColor(.white)
-                            .cornerRadius(8)
+                    VStack(spacing: 10) {
+                        Button(action: {
+                            exportData()
+                        }) {
+                            Text("Export Data")
+                                .padding()
+                                .frame(maxWidth: .infinity)
+                                .background(debugSettings.isDebugMode ? Color.blue : Color.gray)
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                        }
+                        HStack {
+                            Text("Risk Entries:")
+                            Spacer()
+                            Text("\(historyManager.riskEntries.count)")
+                        }
+                        HStack {
+                            Text("Water Log Entries:")
+                            Spacer()
+                            Text("\(waterIntakeManager.allWaterLogs.count)")
+                        }
                     }
-                    .disabled(!debugSettings.isDebugMode || debugSettings.exportDisabled)
+                    .padding()
+                    .background(RoundedRectangle(cornerRadius: 8).fill(Color(white: 0.1)))
                 }
                 
                 // MARK: - Current Metrics (always live)
@@ -74,20 +87,6 @@ struct DebugView: View {
                         Text("Water Intake (5 days):")
                         Spacer()
                         Text("\(Int(waterIntakeManager.weightedWaterIntakeLast5Days)) ml")
-                    }
-                }
-                
-                // MARK: - Saved Data Counts
-                Section(header: Text("Saved Data Counts")) {
-                    HStack {
-                        Text("Risk Entries:")
-                        Spacer()
-                        Text("\(historyManager.riskEntries.count)")
-                    }
-                    HStack {
-                        Text("Water Log Entries:")
-                        Spacer()
-                        Text("\(waterIntakeManager.allWaterLogs.count)")
                     }
                 }
                 
@@ -248,10 +247,11 @@ struct DebugView: View {
         let recommendedWaterForRisk = computeRecommendedWater(profile: profileManager.profile) *
             (AppTheme.waterWeightSeg1 + AppTheme.waterWeightSeg2 + AppTheme.waterWeightSeg3 + AppTheme.waterWeightSeg4 + AppTheme.waterWeightSeg5)
         
-        let activityIndex = (min(liveSteps / 10000.0, 1.0) +
-                             min(liveDist / 5000.0, 1.0) +
-                             min(liveAE / 500.0, 1.0) +
-                             min(liveEX / 30.0, 1.0)) / 4.0
+        let normSteps = min(liveSteps / 10000.0, 1.0)
+        let normDistance = min(liveDist / 5000.0, 1.0)
+        let normActiveEnergy = min(liveAE / 500.0, 1.0)
+        let normExerciseTime = min(liveEX / 30.0, 1.0)
+        let activityIndex = (normSteps + normDistance + normActiveEnergy + normExerciseTime) / 4.0
         let HR_index = min(max((liveHR - 60.0) / (180.0 - 60.0), 0.0), 1.0)
         
         let computedRisk = computeHybridDehydrationRisk(

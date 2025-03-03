@@ -22,13 +22,11 @@ class WaterIntakeManager: ObservableObject {
     init() {
         loadWaterLogs()
         trimWaterLogsTo30Days()
-        // Observe water log actions from notifications.
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(handleDidLogWater(_:)),
                                                name: .didLogWater,
                                                object: nil)
         
-        // Upon initialization, schedule a water inactivity notification.
         if let lastLog = lastWaterLogDate {
             let elapsed = Date().timeIntervalSince(lastLog)
             if elapsed < AppTheme.waterInactivityThreshold {
@@ -38,7 +36,6 @@ class WaterIntakeManager: ObservableObject {
                 NotificationManager.shared.scheduleWaterInactivityNotification(withDelay: 1)
             }
         } else {
-            // No water log exists, schedule notification immediately.
             NotificationManager.shared.scheduleWaterInactivityNotification(withDelay: 1)
         }
     }
@@ -50,12 +47,11 @@ class WaterIntakeManager: ObservableObject {
     /// Called when a water log action is triggered from a notification.
     @objc private func handleDidLogWater(_ notification: Notification) {
         if let amount = notification.object as? Int {
-            // Logging water from notification updates the water logs and resets the inactivity timer.
             addWater(amount: Double(amount))
         }
     }
     
-    /// Adds a new water entry with the current timestamp and saves the updated logs.
+    /// Adds a new water entry with the current timestamp, saves the logs, and posts a notification.
     func addWater(amount: Double) {
         let newEntry = WaterLogEntry(amount: amount, date: Date())
         print("addWater() - New water entry added:", newEntry)
@@ -63,7 +59,9 @@ class WaterIntakeManager: ObservableObject {
         saveWaterLogs()
         trimWaterLogsTo30Days()
         
-        // When water is logged, cancel any existing inactivity notification and schedule a new one.
+        // Post post-notification event.
+        NotificationCenter.default.post(name: .waterLogged, object: nil)
+        
         NotificationManager.shared.cancelWaterInactivityNotification()
         NotificationManager.shared.scheduleWaterInactivityNotification()
     }
@@ -89,7 +87,6 @@ class WaterIntakeManager: ObservableObject {
     /// Computes the weighted water intake over the last 5 days using exponential weights.
     var weightedWaterIntakeLast5Days: Double {
         let now = Date()
-        // Define segment durations (in seconds):
         let seg1: TimeInterval = 12 * 3600  // Last 12 hours
         let seg2: TimeInterval = 12 * 3600  // Previous 12 hours
         let seg3: TimeInterval = 24 * 3600  // Day 2
@@ -97,7 +94,6 @@ class WaterIntakeManager: ObservableObject {
         let seg5: TimeInterval = 24 * 3600  // Day 4
         let seg6: TimeInterval = 24 * 3600  // Day 5
         
-        // Use adjustable weights from AppTheme:
         let w1 = AppTheme.waterWeightSeg1
         let w2 = AppTheme.waterWeightSeg2
         let w3 = AppTheme.waterWeightSeg3
@@ -198,15 +194,11 @@ extension WaterIntakeManager {
         let now = Date()
         guard let cutoff = calendar.date(byAdding: .day, value: -5, to: now) else { return [] }
         
-        // Filter logs for the last 5 days.
         let filteredLogs = waterLogs.filter { $0.date >= cutoff }
-        
-        // Group logs by day (using the start-of-day)
         let groupedByDay = Dictionary(grouping: filteredLogs, by: { calendar.startOfDay(for: $0.date) })
         
         var details: [DailyWaterDetail] = []
         for (day, dayLogs) in groupedByDay {
-            // Group each day's logs by hour.
             let groupedByHour = Dictionary(grouping: dayLogs, by: {
                 calendar.date(from: calendar.dateComponents([.year, .month, .day, .hour], from: $0.date))!
             })
