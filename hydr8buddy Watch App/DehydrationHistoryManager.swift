@@ -74,4 +74,12 @@ class DehydrationHistoryManager: ObservableObject {
             print("Error encoding risk data: \(error)")
         }
     }
+    
+    // Dedicated function to clear all risk entries.
+    func clearRiskEntries() {
+        riskEntries.removeAll()
+        // Remove the risk entries from persistent storage.
+        UserDefaults.standard.removeObject(forKey: userDefaultsKey)
+    }
+
 }

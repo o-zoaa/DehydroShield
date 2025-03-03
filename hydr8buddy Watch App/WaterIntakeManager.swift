@@ -154,6 +154,11 @@ class WaterIntakeManager: ObservableObject {
     var lastWaterLogDate: Date? {
         waterLogs.last?.date
     }
+    
+    func clearWaterLogs() {
+        waterLogs.removeAll()
+        saveWaterLogs()
+    }   
 }
 
 struct WaterLogEntry: Codable {

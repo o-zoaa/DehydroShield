@@ -6,15 +6,20 @@
 //
 
 import SwiftUI
-import WatchKit  // Needed for haptic feedback
+import WatchKit
+
+// Define an enum to distinguish trigger events.
+enum RiskTrigger: String {
+    case healthKit = "HealthKit"
+    case appLaunch = "App Launch"
+    case notification = "Notification"
+}
 
 struct MainHydrationView: View {
     @EnvironmentObject var healthDataManager: HealthDataManager
     @EnvironmentObject var historyManager: DehydrationHistoryManager
     @EnvironmentObject var profileManager: ProfileManager
     @EnvironmentObject var waterIntakeManager: WaterIntakeManager
-    
-    @State private var lastHealthDataUpdate: Date = Date.distantPast
     
     // For debug navigation.
     @State private var showDebugView = false
@@ -29,6 +34,13 @@ struct MainHydrationView: View {
     // State variable to track previous risk fraction for notification logic.
     @State private var previousRiskFraction: Double? = nil
     
+    // State variable to throttle HealthKit-based risk saves.
+    @State private var lastRiskHealthKitSave: Date = Date.distantPast
+    // State variable to throttle app-launch based risk saves.
+    @State private var lastRiskAppLaunchSave: Date = Date.distantPast
+    // State variable to throttle HealthKit notifications.
+    @State private var lastHealthDataUpdate: Date = Date.distantPast
+
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
@@ -101,25 +113,42 @@ struct MainHydrationView: View {
         }
         .onAppear {
             healthDataManager.refreshData()
-            updateRings()
+            // Initialize lastRiskAppLaunchSave from UserDefaults if available.
+            let savedAppLaunch = UserDefaults.standard.double(forKey: "lastAppLaunchRiskSave")
+            if savedAppLaunch > 0 {
+                lastRiskAppLaunchSave = Date(timeIntervalSince1970: savedAppLaunch)
+                print("Initialized lastRiskAppLaunchSave from UserDefaults: \(lastRiskAppLaunchSave)")
+            } else {
+                print("No persisted lastRiskAppLaunchSave found.")
+            }
+            // Initialize lastRiskHealthKitSave from UserDefaults if available.
+            let savedHK = UserDefaults.standard.double(forKey: "lastRiskHealthKitSave")
+            if savedHK > 0 {
+                lastRiskHealthKitSave = Date(timeIntervalSince1970: savedHK)
+                print("Initialized lastRiskHealthKitSave from UserDefaults: \(lastRiskHealthKitSave)")
+            } else {
+                print("No persisted lastRiskHealthKitSave found.")
+            }
+            // Always update the display with the latest risk score.
+            updateRings(trigger: .appLaunch)
+            saveRiskOnLaunchIfNeeded()
         }
         .task {
             try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 second delay
             healthDataManager.refreshData()
-            updateRings()
+            updateRings(trigger: .appLaunch)
         }
-        // Trigger risk recalculation when new HealthKit data arrives.
+        // HealthKit update: throttle to save risk score at most every 30 minutes.
         .onReceive(NotificationCenter.default.publisher(for: .healthDataUpdated)) { _ in
             let now = Date()
-            if now.timeIntervalSince(lastHealthDataUpdate) > (30 * 60) { // 30 minutes in seconds
+            if now.timeIntervalSince(lastHealthDataUpdate) > (30 * 60) {
                 lastHealthDataUpdate = now
-                updateRings()
+                updateRings(trigger: .healthKit)
             }
         }
-
-        // Trigger risk recalculation when water is logged (via notification or in-app).
+        // Notification-triggered update: save risk score immediately.
         .onReceive(NotificationCenter.default.publisher(for: .waterLogged)) { _ in
-            updateRings()
+            updateRings(trigger: .notification)
         }
         .background(
             NavigationLink(destination: DebugView(), isActive: $showDebugView) {
@@ -129,52 +158,40 @@ struct MainHydrationView: View {
         )
     }
     
-    private func updateRings() {
-        print("=== updateRings() - START ===")
+    /// Updates displayed risk and water fractions, then saves a risk entry based on the trigger type.
+    private func updateRings(trigger: RiskTrigger) {
+        print("=== updateRings() - START for trigger: \(trigger.rawValue) ===")
         // Compute intermediate values.
         let liveHR = healthDataManager.heartRate ?? 60.0
         let liveSteps = Double(healthDataManager.stepCount ?? 0)
         let liveAE = healthDataManager.activeEnergy ?? 0.0
         let liveEX = healthDataManager.exerciseTime ?? 0.0
         let liveDist = Double(healthDataManager.distance ?? 0)
-        // For the water ring display, use the 24‑hour water intake.
         let displayWater = waterIntakeManager.waterIntakeLast24Hours
-        // For risk calculation, use the weighted water intake over the last 5 days.
         let riskWater = waterIntakeManager.weightedWaterIntakeLast5Days
-        // For risk, recommended water is for a 5‑day period.
         let recommendedWaterForRisk = computeRecommendedWater(profile: profileManager.profile) *
             (AppTheme.waterWeightSeg1 + AppTheme.waterWeightSeg2 + AppTheme.waterWeightSeg3 + AppTheme.waterWeightSeg4 + AppTheme.waterWeightSeg5)
-        // For display, use the daily recommended water.
         let recommendedWaterForDisplay = computeRecommendedWater(profile: profileManager.profile)
         
-        print("updateRings() - Live Data: HR=\(liveHR), Steps=\(liveSteps), AE=\(liveAE), EX=\(liveEX), Dist=\(liveDist), DisplayWater=\(displayWater), RiskWater=\(riskWater)")
+        print("Live HR: \(liveHR), Steps: \(liveSteps), AE: \(liveAE), EX: \(liveEX), Dist: \(liveDist)")
+        print("Display Water: \(displayWater), Risk Water: \(riskWater)")
         
-        // Compute normalized activity metrics.
         let normSteps = min(liveSteps / 10000.0, 1.0)
         let normDistance = min(liveDist / 5000.0, 1.0)
         let normActiveEnergy = min(liveAE / 500.0, 1.0)
         let normExerciseTime = min(liveEX / 30.0, 1.0)
         let activityIndex = (normSteps + normDistance + normActiveEnergy + normExerciseTime) / 4.0
-        
-        // Compute HR index assuming resting HR = 60 and max HR = 180.
         let HR_index = min(max((liveHR - 60.0) / (180.0 - 60.0), 0.0), 1.0)
-        
-        // Assume normal body temperature (37°C) and no change.
-        let bodyTemperature = 37.0
-        let delta = 0.0
         
         let computedRisk = computeHybridDehydrationRisk(
             waterIntake: riskWater,
             recommendedWater: recommendedWaterForRisk,
             activityIndex: activityIndex,
             HR_index: HR_index,
-            bodyTemperature: bodyTemperature,
-            delta: delta
+            bodyTemperature: 37.0,
+            delta: 0.0
         )
-        print("updateRings() - computedRisk: \(computedRisk)")
-        
         let computedWater = min(displayWater / recommendedWaterForDisplay, 1.0)
-        print("updateRings() - computedWater: \(computedWater)")
         
         withAnimation(.easeInOut(duration: AppTheme.riskAnimationDuration)) {
             displayedRiskFraction = computedRisk
@@ -183,31 +200,60 @@ struct MainHydrationView: View {
             displayedWaterFraction = computedWater
         }
         
-        DispatchQueue.main.async {
-            print("updateRings() - Main thread? \(Thread.isMainThread)")
-            print("Displayed risk fraction: \(displayedRiskFraction), displayed water fraction: \(displayedWaterFraction)")
-        }
+        print("Displayed risk: \(displayedRiskFraction), displayed water: \(displayedWaterFraction)")
         
-        // Notification for Risk Transitions.
-        if let prev = previousRiskFraction {
-            if prev < AppTheme.midRiskThreshold && computedRisk >= AppTheme.midRiskThreshold {
-                NotificationManager.shared.scheduleWaterReminder(reason: "Your dehydration risk has increased to YELLOW. Consider drinking water.")
-            } else if prev < AppTheme.highRiskThreshold && computedRisk >= AppTheme.highRiskThreshold {
-                NotificationManager.shared.scheduleWaterReminder(reason: "Your dehydration risk has increased to RED. Hydrate immediately!")
-            }
-        } else {
-            if computedRisk >= AppTheme.highRiskThreshold {
-                NotificationManager.shared.scheduleWaterReminder(reason: "High dehydration risk detected. Please hydrate!")
-            } else if computedRisk >= AppTheme.midRiskThreshold {
-                NotificationManager.shared.scheduleWaterReminder(reason: "Dehydration risk rising. Consider hydrating.")
-            }
-        }
-        
-        // Save the current risk entry.
-        historyManager.saveRiskEntry(computedRisk)
-        previousRiskFraction = computedRisk
+        // Save risk entry based on the trigger.
+        saveRiskEntry(trigger: trigger, computedRisk: computedRisk)
         
         print("=== updateRings() - END ===")
+    }
+    
+    /// Saves a risk entry based on the trigger type.
+    private func saveRiskEntry(trigger: RiskTrigger, computedRisk: Double) {
+        let now = Date()
+        switch trigger {
+        case .notification:
+            print("Saving risk entry immediately for notification trigger.")
+            historyManager.saveRiskEntry(computedRisk)
+        case .healthKit:
+            if historyManager.riskEntries.isEmpty || now.timeIntervalSince(lastRiskHealthKitSave) > (30 * 60) {
+                let diff = now.timeIntervalSince(lastRiskHealthKitSave)
+                print("Saving risk entry for HealthKit trigger. Time since last save: \(diff) seconds.")
+                lastRiskHealthKitSave = now
+                UserDefaults.standard.set(now.timeIntervalSince1970, forKey: "lastRiskHealthKitSave")
+                historyManager.saveRiskEntry(computedRisk)
+            } else {
+                let diff = now.timeIntervalSince(lastRiskHealthKitSave)
+                print("Not saving risk entry for HealthKit trigger due to throttling. Time since last save: \(diff) seconds.")
+            }
+        case .appLaunch:
+            if historyManager.riskEntries.isEmpty || now.timeIntervalSince(lastRiskAppLaunchSave) > (30 * 60) {
+                let diff = now.timeIntervalSince(lastRiskAppLaunchSave)
+                print("Saving risk entry for app launch trigger. Time since last save: \(diff) seconds.")
+                lastRiskAppLaunchSave = now
+                UserDefaults.standard.set(now.timeIntervalSince1970, forKey: "lastAppLaunchRiskSave")
+                historyManager.saveRiskEntry(computedRisk)
+            } else {
+                let diff = now.timeIntervalSince(lastRiskAppLaunchSave)
+                print("Not saving risk entry for app launch trigger due to throttling. Time since last save: \(diff) seconds.")
+            }
+        }
+    }
+    
+    /// Saves a risk entry at app launch if the persisted timestamp indicates that 30 minutes have passed
+    /// or if the risk entry list is empty.
+    private func saveRiskOnLaunchIfNeeded() {
+        let now = Date().timeIntervalSince1970
+        let lastSave = UserDefaults.standard.double(forKey: "lastAppLaunchRiskSave")
+        print("App launch: now = \(now), lastAppLaunchRiskSave = \(lastSave)")
+        if historyManager.riskEntries.isEmpty || now - lastSave > 30 * 60 {
+            print("Saving risk entry on app launch (overriding throttling if needed).")
+            historyManager.saveRiskEntry(displayedRiskFraction)
+            UserDefaults.standard.set(now, forKey: "lastAppLaunchRiskSave")
+            lastRiskAppLaunchSave = Date(timeIntervalSince1970: now)
+        } else {
+            print("Not saving risk entry on app launch due to throttling. Time since last save: \(now - lastSave) seconds.")
+        }
     }
 }
 

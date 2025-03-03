@@ -16,6 +16,8 @@ struct DebugView: View {
     @EnvironmentObject var debugSettings: DebugSettings
     @EnvironmentObject var historyManager: DehydrationHistoryManager
 
+    @State private var showClearConfirmation: Bool = false
+
     var body: some View {
         NavigationView {
             Form {
@@ -27,7 +29,7 @@ struct DebugView: View {
                         }
                 }
                 
-                // MARK: - Export Data Section
+                // MARK: - Export Data & Seed Data Section
                 Section {
                     VStack(spacing: 20) {
                         Button(action: {
@@ -42,7 +44,6 @@ struct DebugView: View {
                                 .animation(.easeInOut(duration: 0.5), value: debugSettings.exportDisabled)
                         }
                         .disabled(!debugSettings.isDebugMode || debugSettings.exportDisabled)
-
                         
                         HStack {
                             Text("Risk Entries:")
@@ -60,6 +61,35 @@ struct DebugView: View {
                     .padding(.vertical)
                 }
                 
+                // MARK: - Clear All Data Section
+                // MARK: - Clear All Data Section
+                Section {
+                    Button(action: {
+                        showClearConfirmation = true
+                    }) {
+                        Text("Clear All Data")
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .foregroundColor(.red)
+                            .background(Color(white: 0.15))
+                            .cornerRadius(8)
+                    }
+                    .disabled(!debugSettings.isDebugMode)
+                }
+                .alert(isPresented: $showClearConfirmation) {
+                    Alert(
+                        title: Text("Clear Data"),
+                        message: Text("Are you sure you want to clear all saved water and risk score entries? This cannot be undone."),
+                        primaryButton: .destructive(Text("Clear")) {
+                            // Call the dedicated function in DehydrationHistoryManager
+                            historyManager.clearRiskEntries()
+                            // Also clear water logs by calling the dedicated function in WaterIntakeManager.
+                            waterIntakeManager.clearWaterLogs()
+                        },
+                        secondaryButton: .cancel()
+                    )
+                }
+
                 // MARK: - Current Metrics Section
                 Section(header: Text("Current Metrics")) {
                     HStack {
