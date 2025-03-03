@@ -19,7 +19,7 @@ struct DebugView: View {
     var body: some View {
         NavigationView {
             Form {
-                // MARK: - Toggle Section
+                // MARK: - Toggle Debug Mode Section
                 Section {
                     Toggle("Enable Debug Mode", isOn: $debugSettings.isDebugMode)
                         .onChange(of: debugSettings.isDebugMode) { _ in
@@ -27,19 +27,23 @@ struct DebugView: View {
                         }
                 }
                 
-                // MARK: - Export Data & Saved Counts Box
+                // MARK: - Export Data Section
                 Section {
-                    VStack(spacing: 10) {
+                    VStack(spacing: 20) {
                         Button(action: {
                             exportData()
                         }) {
                             Text("Export Data")
                                 .padding()
                                 .frame(maxWidth: .infinity)
-                                .background(debugSettings.isDebugMode ? Color.blue : Color.gray)
+                                .background((!debugSettings.isDebugMode || debugSettings.exportDisabled) ? Color.gray : Color.blue)
                                 .foregroundColor(.white)
                                 .cornerRadius(8)
+                                .animation(.easeInOut(duration: 0.5), value: debugSettings.exportDisabled)
                         }
+                        .disabled(!debugSettings.isDebugMode || debugSettings.exportDisabled)
+
+                        
                         HStack {
                             Text("Risk Entries:")
                             Spacer()
@@ -52,10 +56,11 @@ struct DebugView: View {
                         }
                     }
                     .padding()
-                    .background(RoundedRectangle(cornerRadius: 8).fill(Color(white: 0.1)))
+                    .background(RoundedRectangle(cornerRadius: 12).fill(Color(white: 0.15)).shadow(radius: 3))
+                    .padding(.vertical)
                 }
                 
-                // MARK: - Current Metrics (always live)
+                // MARK: - Current Metrics Section
                 Section(header: Text("Current Metrics")) {
                     HStack {
                         Text("Heart Rate:")
@@ -90,7 +95,7 @@ struct DebugView: View {
                     }
                 }
                 
-                // MARK: - Adjust Metrics (for debugging)
+                // MARK: - Adjust Metrics Section
                 Section(header: Text("Adjust Metrics")) {
                     VStack(alignment: .leading) {
                         Text("Heart Rate").font(.subheadline)
@@ -166,7 +171,7 @@ struct DebugView: View {
                     }
                 }
                 
-                // MARK: - Simulate Risk Transition Notifications Card
+                // MARK: - Simulate Risk Transition Notifications Section
                 Section {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Simulate Risk Transition Notifications")
@@ -197,7 +202,7 @@ struct DebugView: View {
                     .cornerRadius(10)
                 }
                 
-                // MARK: - Ring Preview and Update Button
+                // MARK: - Ring Preview and Update Button Section
                 Section {
                     if debugSettings.isDebugMode {
                         if debugSettings.isPreviewDirty {
@@ -313,23 +318,23 @@ struct DebugView: View {
         print("Preview Risk: \(risk), Preview Water: \(waterFrac)")
     }
     
-    // MARK: - Missing Functions Added Back
-    
     /// Exports water log and risk data to CloudKit.
     private func exportData() {
         WKInterfaceDevice.current().play(.failure)
         
-        let waterData = waterIntakeManager.allWaterLogs.map { log in
+        let waterData = waterIntakeManager.allWaterLogs
+        let riskData = historyManager.riskEntries
+        
+        let waterDict = waterData.map { log in
             ["amount": log.amount, "date": log.date.iso8601String]
         }
-        
-        let riskData = historyManager.riskEntries.map { entry in
+        let riskDict = riskData.map { entry in
             ["risk": entry.risk, "date": entry.date.iso8601String]
         }
         
         let exportDictionary: [String: Any] = [
-            "waterLogs": waterData,
-            "riskEntries": riskData
+            "waterLogs": waterDict,
+            "riskEntries": riskDict
         ]
         
         guard let jsonData = try? JSONSerialization.data(withJSONObject: exportDictionary, options: [.prettyPrinted]) else {
@@ -362,7 +367,7 @@ struct DebugView: View {
         }
         
         debugSettings.exportDisabled = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
             debugSettings.exportDisabled = false
         }
     }

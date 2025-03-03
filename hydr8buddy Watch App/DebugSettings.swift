@@ -14,7 +14,7 @@ class DebugSettings: ObservableObject {
     
     @Published var isDebugMode: Bool = false
     
-    // Persistent debug metric values (defaults are live values; these get updated on toggle)
+    // Persistent debug metric values
     @Published var debugHeartRate: Double = 60
     @Published var debugStepCount: Double = 0
     @Published var debugActiveEnergy: Double = 0
@@ -29,6 +29,8 @@ class DebugSettings: ObservableObject {
     // Flag that indicates the debug metrics have been changed since the last preview update.
     @Published var isPreviewDirty: Bool = false
     
-    // New: Flag to disable export button temporarily
+    // Flag to disable export button temporarily
     @Published var exportDisabled: Bool = false
+    
+    // Removed exportIncludeSeedData toggle
 }

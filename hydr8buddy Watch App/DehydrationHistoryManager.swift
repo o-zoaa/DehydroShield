@@ -22,7 +22,7 @@ struct RiskEntry: Identifiable, Codable {
 }
 
 /// Manages the history of dehydration risk entries.
-/// Every computed risk is appended, and entries are trimmed to the last 30 days.
+/// Only risk entries from the past 5 days are retained.
 class DehydrationHistoryManager: ObservableObject {
     @Published var riskEntries: [RiskEntry] = []
     
@@ -30,9 +30,7 @@ class DehydrationHistoryManager: ObservableObject {
     
     init() {
         loadRiskEntries()
-        if riskEntries.isEmpty {
-            seedSampleDataForPast30Days()
-        }
+        trimEntriesTo5Days()
     }
     
     /// Appends a new risk entry with the current timestamp.
@@ -40,7 +38,7 @@ class DehydrationHistoryManager: ObservableObject {
         let newEntry = RiskEntry(date: Date(), risk: risk)
         riskEntries.append(newEntry)
         persistRiskEntries()
-        trimEntriesTo30Days()
+        trimEntriesTo5Days()
     }
     
     func loadRiskEntries() {
@@ -52,32 +50,17 @@ class DehydrationHistoryManager: ObservableObject {
         do {
             let decoder = JSONDecoder()
             riskEntries = try decoder.decode([RiskEntry].self, from: data)
-            trimEntriesTo30Days() // Ensure we only keep the last 30 days
+            trimEntriesTo5Days()
         } catch {
             print("Error decoding risk data: \(error)")
             riskEntries = []
         }
     }
     
-    /// Trims risk entries to only the last 30 days.
-    func trimEntriesTo30Days() {
-        let cutoff = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()
+    /// Trims risk entries to only those from the past 5 days.
+    func trimEntriesTo5Days() {
+        let cutoff = Calendar.current.date(byAdding: .day, value: -5, to: Date()) ?? Date()
         riskEntries.removeAll { $0.date < cutoff }
-        persistRiskEntries()
-    }
-    
-    private func seedSampleDataForPast30Days() {
-        let cal = Calendar.current
-        let now = Date()
-        // For sample purposes, generate one entry per day for the last 7 days.
-        let sampleRisks: [Double] = [0.25, 0.35, 0.2, 0.55, 0.7, 0.4, 0.85]
-        for i in 0..<7 {
-            guard let day = cal.date(byAdding: .day, value: -i, to: now) else { continue }
-            let risk = sampleRisks.reversed()[i]
-            let entry = RiskEntry(date: day, risk: risk)
-            riskEntries.append(entry)
-        }
-        riskEntries.sort(by: { $0.date < $1.date })
         persistRiskEntries()
     }
     
