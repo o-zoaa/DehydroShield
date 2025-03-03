@@ -18,6 +18,8 @@ struct WaterIntakeView: View {
     @State private var selectedAmount: Int = 10
     // State variable to track whether water was just logged.
     @State private var waterLogged: Bool = false
+    // State variable to disable the button temporarily
+    @State private var waterButtonDisabled: Bool = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -42,23 +44,27 @@ struct WaterIntakeView: View {
             // Water logging button.
             Button(action: {
                 waterIntakeManager.addWater(amount: Double(selectedAmount))
-                WKInterfaceDevice.current().play(.failure) // Stronger haptic feedback.
+                WKInterfaceDevice.current().play(.failure) // Haptic feedback.
                 waterLogged = true
-                // After 5 seconds, revert the button back.
+                waterButtonDisabled = true
                 DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                    waterButtonDisabled = false
                     waterLogged = false
                 }
             }) {
                 Text(waterLogged ? "Water Intake Logged" : "+ Water")
-                    .font(.headline)
+                    .font(waterLogged ? .system(size: 12, weight: .semibold) : .system(size: 18, weight: .semibold))
                     .foregroundColor(.black)
+                    //.foregroundColor(Color(red: 0, green: 0, blue: 0))
+                    .frame(width: 125, height: 20) // Fixed width and height to prevent layout shift
                     .padding(.vertical, 8)
                     .padding(.horizontal, 20)
-                    .background(waterLogged ? Color.green : Color.blue)
+                    .background(waterButtonDisabled ? Color.gray : Color.blue)
                     .cornerRadius(8)
+                    .animation(.easeInOut(duration: 0.5), value: waterButtonDisabled)
             }
             .buttonStyle(.plain)
-            .disabled(waterLogged)
+            .disabled(waterButtonDisabled)
             
             Spacer(minLength: 8)
         }

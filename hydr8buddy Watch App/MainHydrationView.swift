@@ -14,6 +14,8 @@ struct MainHydrationView: View {
     @EnvironmentObject var profileManager: ProfileManager
     @EnvironmentObject var waterIntakeManager: WaterIntakeManager
     
+    @State private var lastHealthDataUpdate: Date = Date.distantPast
+    
     // For debug navigation.
     @State private var showDebugView = false
     
@@ -108,8 +110,13 @@ struct MainHydrationView: View {
         }
         // Trigger risk recalculation when new HealthKit data arrives.
         .onReceive(NotificationCenter.default.publisher(for: .healthDataUpdated)) { _ in
-            updateRings()
+            let now = Date()
+            if now.timeIntervalSince(lastHealthDataUpdate) > (30 * 60) { // 30 minutes in seconds
+                lastHealthDataUpdate = now
+                updateRings()
+            }
         }
+
         // Trigger risk recalculation when water is logged (via notification or in-app).
         .onReceive(NotificationCenter.default.publisher(for: .waterLogged)) { _ in
             updateRings()
