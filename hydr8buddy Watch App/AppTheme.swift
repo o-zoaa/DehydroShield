@@ -132,18 +132,18 @@ struct AppTheme {
     //   - Increasing W_activity makes the risk score more sensitive to high levels of physical activity.
     //     This reflects the idea that dehydration can occur more rapidly with increased activity.
     //   - Decreasing W_activity reduces the impact of physical activity on the overall risk.
-    static let W_activity: Double = 0.25
+    static let W_activity: Double = 0.2
     //
     // W_hr (e.g., 0.2): The weight for the heart rate index.
     //   - A higher W_hr means that elevated heart rate (beyond resting levels) will have a greater impact on risk.
     //   - Lowering W_hr reduces the effect of heart rate changes on the risk score.
-    static let W_hr: Double = 0.2
+    static let W_hr: Double = 0.15
     //
     // W_temp (e.g., 0.1): The weight for the temperature index.
     //   - Increasing W_temp will amplify the contribution of body temperature deviations (from normal) to the risk score.
     //     This means that if a user’s body temperature rises (a sign of dehydration), the risk score will increase more steeply.
     //   - Decreasing W_temp lessens the effect of body temperature on the risk.
-    static let W_temp: Double = 0.1
+    static let W_temp: Double = 0.0
     //
     // W_delta (e.g., 0.05): The weight for the rate-of-change (delta) factor.
     //   - This factor captures how quickly the risk score is changing.
