@@ -23,7 +23,7 @@ struct WaterIntakeView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            Spacer(minLength: 10)
+            Spacer(minLength: 25)
             
             // Wheel picker for water amounts.
             Picker("", selection: $selectedAmount) {
@@ -39,7 +39,7 @@ struct WaterIntakeView: View {
             .pickerStyle(.wheel)
             .frame(width: AppTheme.waterPickerWidth, height: AppTheme.waterPickerHeight)
             
-            Spacer(minLength: 10)
+            Spacer(minLength: 5)
             
             // Water logging button.
             Button(action: {
@@ -55,8 +55,7 @@ struct WaterIntakeView: View {
                 Text(waterLogged ? "Water Intake Logged" : "+ Water")
                     .font(waterLogged ? .system(size: 12, weight: .semibold) : .system(size: 18, weight: .semibold))
                     .foregroundColor(.black)
-                    //.foregroundColor(Color(red: 0, green: 0, blue: 0))
-                    .frame(width: 125, height: 20) // Fixed width and height to prevent layout shift
+                    .frame(width: 125, height: 20) // Fixed width & height to prevent layout shift
                     .padding(.vertical, 8)
                     .padding(.horizontal, 20)
                     .background(waterButtonDisabled ? Color.gray : Color.blue)
@@ -71,6 +70,14 @@ struct WaterIntakeView: View {
         .navigationTitle("Water Intake")
         .navigationBarTitleDisplayMode(.inline)
         .background(Color.black.ignoresSafeArea())
+        // Overlay text at the top, offset slightly downward
+        .overlay(
+            Text("Past 24 Hours: \(waterIntakeManager.waterIntakeLast24Hours, specifier: "%.0f") ml")
+                .font(.caption)
+                .foregroundColor(.white)
+                .offset(y: 20),
+            alignment: .top
+        )
     }
 }
 

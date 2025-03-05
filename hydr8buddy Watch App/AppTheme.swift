@@ -46,12 +46,12 @@ struct AppTheme {
 
     static let riskChartLabelOffset: CGFloat = 0  // Adjust positive values to shift right, negative to shift left.
     // Add these lines near the other AppTheme properties:
-    static let waterWeightSeg1: CGFloat = 0.70  // Last 12 hours
-    static let waterWeightSeg2: CGFloat = 0.20  // Previous 12 hours
-    static let waterWeightSeg3: CGFloat = 0.06  // Day 2
-    static let waterWeightSeg4: CGFloat = 0.02  // Day 3
-    static let waterWeightSeg5: CGFloat = 0.01  // Day 4
-    static let waterWeightSeg6: CGFloat = 0.01  // Day 5
+    static let waterWeightSeg1: CGFloat = 0.50  // Last 12 hours
+    static let waterWeightSeg2: CGFloat = 0.25  // Previous 12 hours
+    static let waterWeightSeg3: CGFloat = 0.13  // Day 2
+    static let waterWeightSeg4: CGFloat = 0.07  // Day 3
+    static let waterWeightSeg5: CGFloat = 0.035  // Day 4
+    static let waterWeightSeg6: CGFloat = 0.015  // Day 5
 
     // Animation duration for the bar graph (in seconds)
     static let barAnimationDuration: Double = 1.5

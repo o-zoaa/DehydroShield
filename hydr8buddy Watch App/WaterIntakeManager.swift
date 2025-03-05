@@ -120,7 +120,18 @@ class WaterIntakeManager: ObservableObject {
             return t > (seg1 + seg2 + seg3 + seg4 + seg5) && t <= (seg1 + seg2 + seg3 + seg4 + seg5 + seg6)
         }.reduce(0) { $0 + $1.amount }
         
-        return (w1 * water1) + (w2 * water2) + (w3 * water3) + (w4 * water4) + (w5 * water5) + (w6 * water6)
+        // Debug: Log individual water intakes for each segment.
+        print("Water intake by segments (ml):")
+        print("Segment 1 (last 12 hrs): \(water1)")
+        print("Segment 2 (previous 12 hrs): \(water2)")
+        print("Segment 3 (Day 2): \(water3)")
+        print("Segment 4 (Day 3): \(water4)")
+        print("Segment 5 (Day 4): \(water5)")
+        print("Segment 6 (Day 5): \(water6)")
+        
+        let weightedSum = (w1 * water1) + (w2 * water2) + (w3 * water3) + (w4 * water4) + (w5 * water5) + (w6 * water6)
+        print("Weighted water intake over 5 days (Risk Water): \(weightedSum)")
+        return weightedSum
     }
     
     /// Trims water log entries to only those from the past 5 days.

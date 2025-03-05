@@ -24,6 +24,9 @@ struct MainHydrationView: View {
     // For debug navigation.
     @State private var showDebugView = false
     
+    // Explicit binding to control navigation to WaterIntakeView.
+    @State private var showWaterIntakeView = false
+    
     // Default recommended water intake if no profile is available (ml).
     private let defaultRecommendedWaterIntake: Double = 2000
     
@@ -87,13 +90,17 @@ struct MainHydrationView: View {
                 
                 // Bottom row with navigation icons.
                 HStack {
-                    NavigationLink(destination: WaterIntakeView()) {
-                        Image(systemName: AppTheme.chartIconName)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: AppTheme.bottomIconSize, height: AppTheme.bottomIconSize)
-                            .foregroundColor(AppTheme.bottomIconColor)
-                    }
+                    NavigationLink(
+                        destination: WaterIntakeView(),
+                        isActive: $showWaterIntakeView,
+                        label: {
+                            Image(systemName: AppTheme.chartIconName)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: AppTheme.bottomIconSize, height: AppTheme.bottomIconSize)
+                                .foregroundColor(AppTheme.bottomIconColor)
+                        }
+                    )
                     .buttonStyle(PlainButtonStyle())
                     
                     Spacer()
@@ -112,6 +119,9 @@ struct MainHydrationView: View {
             }
         }
         .onAppear {
+            // Reset the navigation binding to ensure WaterIntakeView is not restored.
+            showWaterIntakeView = false
+            
             healthDataManager.refreshData()
             // Initialize lastRiskAppLaunchSave from UserDefaults if available.
             let savedAppLaunch = UserDefaults.standard.double(forKey: "lastAppLaunchRiskSave")
@@ -192,6 +202,7 @@ struct MainHydrationView: View {
             delta: 0.0
         )
         let computedWater = min(displayWater / recommendedWaterForDisplay, 1.0)
+        print("Water ring fraction = \(computedWater)")
         
         withAnimation(.easeInOut(duration: AppTheme.riskAnimationDuration)) {
             displayedRiskFraction = computedRisk

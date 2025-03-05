@@ -78,8 +78,29 @@ class DehydrationHistoryManager: ObservableObject {
     // Dedicated function to clear all risk entries.
     func clearRiskEntries() {
         riskEntries.removeAll()
-        // Remove the risk entries from persistent storage.
         UserDefaults.standard.removeObject(forKey: userDefaultsKey)
     }
+}
 
+// MARK: - Daily Average Risk Aggregation
+
+extension DehydrationHistoryManager {
+    /// Computes and returns an array of (date, average risk) for the past 5 days.
+    var dailyAvgRiskLast5Days: [(date: Date, avgRisk: Double)] {
+        let calendar = Calendar.current
+        let now = Date()
+        // We consider the past 5 days (including today)
+        guard let cutoff = calendar.date(byAdding: .day, value: -4, to: now) else { return [] }
+        
+        let recentEntries = riskEntries.filter { $0.date >= cutoff }
+        let grouped = Dictionary(grouping: recentEntries, by: { calendar.startOfDay(for: $0.date) })
+        
+        var results: [(date: Date, avgRisk: Double)] = []
+        for (day, entries) in grouped {
+            let risks = entries.map { $0.risk }
+            let avg = risks.reduce(0, +) / Double(risks.count)
+            results.append((date: day, avgRisk: avg))
+        }
+        return results.sorted { $0.date < $1.date }
+    }
 }

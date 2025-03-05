@@ -9,12 +9,12 @@ import SwiftUI
 import Charts  // watchOS 9+ for Chart APIs
 import WatchKit
 
-// Data model for combo chart
+// Data model for combo chart (for water bars)
 struct ComboDay: Identifiable {
     let id = UUID()
     let date: Date
     let water: Double   // ml
-    let risk: Double    // 0..1
+    let risk: Double    // (not used here)
 }
 
 struct HistoricalChartView: View {
@@ -29,9 +29,11 @@ struct HistoricalChartView: View {
             
             VStack(spacing: 16) {
                 if #available(watchOS 9.0, *) {
-                    let comboData = makeComboData()
+                    let waterBars = makeComboData()
+                    // Use the daily average risk data from the manager.
+                    let avgRiskData = historyManager.dailyAvgRiskLast5Days
                     
-                    if comboData.isEmpty {
+                    if waterBars.isEmpty && avgRiskData.isEmpty {
                         Text("No Data Available")
                             .foregroundColor(.white)
                     } else {
@@ -39,8 +41,8 @@ struct HistoricalChartView: View {
                         let trailingTickValues = stride(from: 0, through: maxWater, by: maxWater / 5).map { $0 }
                         
                         Chart {
-                            // Bars for water intake
-                            ForEach(comboData) { day in
+                            // Water Intake Bars (unchanged)
+                            ForEach(waterBars) { day in
                                 let displayedWater = min(day.water, maxWater)
                                 BarMark(
                                     x: .value("Day", formattedWeekday(day.date)),
@@ -53,17 +55,23 @@ struct HistoricalChartView: View {
                                 )
                             }
                             
-                            // Line and points for scaled risk
-                            ForEach(comboData) { day in
-                                let scaledRisk = day.risk * maxWater
+                            // Average Risk Line (red) based on the manager’s computed daily average.
+                            ForEach(avgRiskData, id: \.date) { stats in
+                                let dayLabel = formattedWeekday(stats.date)
+                                let scaledRisk = stats.avgRisk * maxWater
                                 LineMark(
-                                    x: .value("Day", formattedWeekday(day.date)),
+                                    x: .value("Day", dayLabel),
                                     y: .value("Scaled Risk", scaledRisk)
                                 )
                                 .foregroundStyle(Color.red)
-                                
+                            }
+                            
+                            // Average Risk Points (red)
+                            ForEach(avgRiskData, id: \.date) { stats in
+                                let dayLabel = formattedWeekday(stats.date)
+                                let scaledRisk = stats.avgRisk * maxWater
                                 PointMark(
-                                    x: .value("Day", formattedWeekday(day.date)),
+                                    x: .value("Day", dayLabel),
                                     y: .value("Scaled Risk", scaledRisk)
                                 )
                                 .foregroundStyle(Color.red)
@@ -104,7 +112,7 @@ struct HistoricalChartView: View {
                         Circle()
                             .fill(Color.red)
                             .frame(width: 10, height: 10)
-                        Text("Dehydration Risk")
+                        Text("Avg Dehydration Risk")
                             .font(.caption2)
                             .foregroundColor(.white)
                     }
@@ -121,23 +129,16 @@ struct HistoricalChartView: View {
         .background(Color.black.ignoresSafeArea())
     }
     
-    // Merge water and risk data into a single combo array.
+    // Merge water data into water bars (risk value is ignored here).
     private func makeComboData() -> [ComboDay] {
         let waterDays = last5DaysWater()
-        let riskDays = last5DaysRisk()
-        
-        let allDates = Set(waterDays.map { $0.date } + riskDays.map { $0.date })
-        
-        var combo: [ComboDay] = []
-        for d in allDates {
-            let wVal = waterDays.first(where: { isSameDay($0.date, d) })?.water ?? 0
-            let rVal = riskDays.first(where: { isSameDay($0.date, d) })?.risk ?? 0
-            combo.append(ComboDay(date: d, water: wVal, risk: rVal))
+        return waterDays.map { (date, water) in
+            ComboDay(date: date, water: water, risk: 0)
         }
-        return combo.sorted { $0.date < $1.date }
+        .sorted { $0.date < $1.date }
     }
     
-    // Example water loader using detailed 5-day totals.
+    // Load water data for the last 5 days.
     private func last5DaysWater() -> [(date: Date, water: Double)] {
         let raw = waterIntakeManager.last5DaysDailyTotalsDetailed()
         return raw.map { day in
@@ -146,31 +147,9 @@ struct HistoricalChartView: View {
         }
     }
     
-    /// Groups risk entries by day and returns the last risk value for each day.
-    private func last5DaysRisk() -> [(date: Date, risk: Double)] {
-        let calendar = Calendar.current
-        let now = Date()
-        guard let cutoff = calendar.date(byAdding: .day, value: -4, to: now) else { return [] }
-        
-        let entries = historyManager.riskEntries.filter { $0.date >= cutoff }
-        let grouped = Dictionary(grouping: entries, by: { calendar.startOfDay(for: $0.date) })
-        var results: [(date: Date, risk: Double)] = []
-        for (day, entries) in grouped {
-            if let lastEntry = entries.sorted(by: { $0.date < $1.date }).last {
-                results.append((day, lastEntry.risk))
-            }
-        }
-        return results.sorted { $0.0 < $1.0 }
-    }
-    
-    // Helper function to format a date as an abbreviated weekday.
+    // Helper: Format a date as an abbreviated weekday.
     private func formattedWeekday(_ date: Date) -> String {
         date.formatted(.dateTime.weekday(.abbreviated))
-    }
-    
-    // Helper function to compare two dates by day.
-    private func isSameDay(_ d1: Date, _ d2: Date) -> Bool {
-        Calendar.current.isDate(d1, inSameDayAs: d2)
     }
 }
 
